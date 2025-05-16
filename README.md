@@ -110,4 +110,4 @@ JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·
 
 - [FastAPI 공식 문서](https://fastapi.tiangolo.com/)  
 - [SQLModel 튜토리얼](https://sqlmodel.tiangolo.com/)  
-- [uv 서버 매뉴얼](https://docs.astral.sh/uv/#python-versions)
+- [uv 서버 매뉴얼](https://docs.astral.sh/uv/)
