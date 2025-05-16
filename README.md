@@ -63,6 +63,10 @@ JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·
    docker build -t your-backend-image .
    docker run -d -p 8000:8000 --env-file .env your-backend-image
    ```
+---
+## 🗂 ERD
+
+![Image](https://github.com/user-attachments/assets/f9e65b0c-dfcd-4beb-9d03-44c1ae14276d)
 
 ---
 
