@@ -34,3 +34,5 @@ uv.toml
 build/
 dist/
 *.egg-info/
+
+.gitignore
