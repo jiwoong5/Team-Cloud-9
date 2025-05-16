@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from . import crud, schemas
+
 from app.db.session import get_db
+from . import crud, schemas
 
 router = APIRouter(prefix="/students", tags=["students"])
 

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session as OrmSession
 from sqlmodel import Session, select
+
 from .models import Register
 from .schemas import RegisterCreate
 from ..courses.models import Course

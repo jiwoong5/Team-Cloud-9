@@ -1,6 +1,8 @@
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from sqlmodel import SQLModel, Field
+
 
 class Student(SQLModel, table=True):
     __tablename__ = "students"

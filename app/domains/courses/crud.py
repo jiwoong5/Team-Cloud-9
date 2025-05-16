@@ -1,18 +1,17 @@
 from typing import List
 
 from fastapi_pagination import paginate
+from fastapi_pagination.ext.sqlmodel import paginate
 from sqlmodel import Session, select
 
 from app.domains.courses.models import Course
 from app.domains.courses.schemas import CourseCreate
-from app.domains.departments.models import Department
 from app.domains.registrations.models import Register
 from app.domains.students.models import Student
 
 
 def get_courses(db: Session) -> list[Course]:
-    stmt = select(Course)
-    return paginate(db.exec(stmt).all())
+    return paginate(db, select(Course))
 
 
 def create_course(db: Session, course_in: CourseCreate) -> Course:

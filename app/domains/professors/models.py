@@ -1,7 +1,9 @@
 # app/domains/professors/models.py
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from sqlmodel import SQLModel, Field
+
 
 class Professor(SQLModel, table=True):
     __tablename__ = "professors"

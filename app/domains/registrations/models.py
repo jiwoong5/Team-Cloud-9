@@ -1,6 +1,8 @@
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from sqlmodel import SQLModel, Field
+
 
 class Register(SQLModel, table=True):
     __tablename__ = "registrations"

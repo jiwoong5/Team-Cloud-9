@@ -5,8 +5,8 @@ from sqlmodel import SQLModel
 
 from app.core.config import settings
 from app.domains.courses.routers import router as course_router
-from app.domains.students.routers import router as student_router
 from app.domains.registrations.routers import router as enrollment_router
+from app.domains.students.routers import router as student_router
 from app.exceptions import EntityNotFound, EntityAlreadyExists, BadRequest
 
 app = FastAPI()

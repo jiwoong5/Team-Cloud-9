@@ -7,8 +7,6 @@ from starlette import status
 
 from app.db.session import get_db
 from app.domains.courses import schemas, crud
-from app.domains.courses.models import Course
-from app.domains.departments.models import Department
 from app.domains.students.schemas import StudentRead
 
 router = APIRouter(tags=["courses"], prefix="/admin/courses")
@@ -92,6 +90,7 @@ def delete_course(
     db.delete(course)
     db.commit()
     return
+
 
 @router.get("/{course_id}", response_model=schemas.CourseRead)
 def read_course(course_id: int, db: Session = Depends(get_db)):

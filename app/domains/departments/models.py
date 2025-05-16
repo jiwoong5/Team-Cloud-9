@@ -1,8 +1,10 @@
 # app/domains/departments/models.py
 
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from sqlmodel import SQLModel, Field
+
 
 class Department(SQLModel, table=True):
     __tablename__ = "departments"
