@@ -27,6 +27,7 @@ def delete_register(db: Session, register_id: int):
         return None
     course = db.get(Course, register.course_id)
     db.delete(register)
+    db.commit()
     return course
 
 
