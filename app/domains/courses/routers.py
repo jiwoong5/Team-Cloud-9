@@ -21,23 +21,6 @@ def read_courses(db: Session = Depends(get_db)):
 add_pagination(router)
 
 
-@router.put("/{course_id}", response_model=schemas.CourseRead)
-def update_course(
-        course_id: int,
-        course_in: schemas.CourseUpdate,
-        db: Session = Depends(get_db)
-):
-    course = crud.get_course(db, course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-    course.name = course_in.name
-    course.description = course_in.description
-    db.add(course)
-    db.commit()
-    db.refresh(course)
-    return course
-
-
 # 강의 개설
 @router.post("", response_model=schemas.CourseRead, status_code=status.HTTP_201_CREATED)
 def add_course(

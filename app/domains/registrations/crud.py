@@ -22,9 +22,11 @@ def register_student(db: Session, register_in: RegisterCreate) -> Register:
 
 
 def delete_register(db: Session, register_id: int):
-    register = db.select(Register).where(Register.id == register_id)
-    course = db.select(Course).where(Course.id == register.course_id)
-    db.delete(db.get(Register, register_id))
+    register = db.get(Register, register_id)
+    if not register:
+        return None
+    course = db.get(Course, register.course_id)
+    db.delete(register)
     db.commit()
     return course
 
