@@ -55,13 +55,13 @@ JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·
 
 5. 서버 실행  
    ```bash
-   uv run uvicorn app.main:app --reload --env-file .env
+   uv run uvicorn app.main:app --reload --env-file .env.test
    ```
 
 6. (선택) Docker로 실행  
    ```bash
    docker build -t your-backend-image .
-   docker run -d -p 8000:8000 --env-file .env your-backend-image
+   docker run -d -p 8000:8000 --env-file .env.test your-backend-image
    ```
 ---
 ## 🗂 ERD
