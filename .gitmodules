@@ -1,3 +1,3 @@
 [submodule "k3s-cluster"]
 	path = k3s-cluster
-	url = https://github.com/nacho2407/ccproject.git
+	url = https://github.com/nacho2407/ccproject_k3s-cluster.git
