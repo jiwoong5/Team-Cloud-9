@@ -1,0 +1,282 @@
+/* admin-container 전체 영역 */
+.admin-container {
+  font-family: "Noto Sans KR", sans-serif;
+  padding: 20px;
+  background-color: #f5f7fa;
+}
+
+/* 상단 네비게이션 바 */
+.admin-container .top-nav {
+  display: flex; /* 플렉스 레이아웃 사용 */
+  justify-content: space-between; /* 좌우 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  background-color: #033d92; /* 배경색 (짙은 파란색) */
+  padding: 10px 20px; /* 내부 여백 */
+  color: white; /* 텍스트 색상 */
+  font-size: 14px; /* 글자 크기 */
+}
+
+.admin-container .nav-left,
+.admin-container .nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.admin-container .nav-item {
+  margin: 0 10px;
+  font-size: 14px;
+}
+
+.admin-container .pnu-logo {
+  height: 32px;
+}
+
+/* 로그아웃 버튼 */
+.admin-container .logout-button {
+  background-color: #033d92; /* 배경색 (네비게이션 바와 동일) */
+  color: white; /* 텍스트 색상 */
+  padding: 8px 16px; /* 내부 여백 */
+  border: none; /* 테두리 제거 */
+  border-radius: 4px; /* 모서리 둥글게 */
+  cursor: pointer; /* 마우스 커서 변경 */
+  font-size: 14px; /* 글자 크기 */
+  transition: background-color 0.3s ease; /* 배경색 전환 효과 */
+}
+
+.admin-container .logout-button:hover {
+  background-color: #dc2626;
+}
+
+/* 관리자 페이지 제목 */
+.admin-container .admin-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #111827;
+  text-align: center;
+}
+
+/* 탭 스타일 */
+.admin-container .tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* 탭 버튼 영역 */
+.admin-container .tabs .tab-buttons {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.admin-container .tabs .tab-buttons button {
+  padding: 10px 20px;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px 8px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.admin-container .tabs .tab-buttons button:hover {
+  background-color: #e5e7eb;
+}
+
+.admin-container .tabs .tab-buttons button.active {
+  background-color: #ffffff;
+  border-bottom: 1px solid #ffffff;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* 콘텐츠 영역 */
+.admin-container .tabs .tab-content-wrapper {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0 0 10px 10px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* 각 탭 콘텐츠에 공통 적용 */
+.admin-container .tabs .tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 강의 개설 탭 콘텐츠 영역 */
+.admin-container .tabs .tab-content#create-content {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 제목 */
+.admin-container .tabs .tab-content#create-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #1f2937;
+}
+
+/* 입력 필드 스타일 */
+.admin-container .tabs .tab-content#create-content input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #f9fafb;
+  color: #111827;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+/* 포커스 시 스타일 */
+.admin-container .tabs .tab-content#create-content input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  background-color: #ffffff;
+}
+
+/* 등록 버튼 스타일 */
+.admin-container .tabs .tab-content#create-content button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  background-color: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+/* hover 시 버튼 색상 변경 */
+.admin-container .tabs .tab-content#create-content button:hover {
+  background-color: #4338ca;
+}
+
+/* 강의 관리 탭 콘텐츠 영역 */
+.admin-container .tabs .tab-content#manage-content {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  max-width: 100%;
+  overflow-x: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.admin-container .tabs .tab-content#manage-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1f2937;
+  text-align: center;
+}
+
+/* 테이블 스타일 */
+.admin-container .tabs .tab-content#manage-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-container .tabs .tab-content#manage-content th,
+.admin-container .tabs .tab-content#manage-content td {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.admin-container .tabs .tab-content#manage-content th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* 신청 버튼 */
+.admin-container .tabs .tab-content#manage-content button {
+  padding: 6px 12px;
+  background-color: #4f46e5;
+  color: white;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-container .tabs .tab-content#manage-content button:hover {
+  background-color: #4338ca;
+}
+
+/* 수강생 조회 탭 콘텐츠 */
+.admin-container .tabs .tab-content#students-content {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.admin-container .tabs .tab-content#students-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 테이블 기본 스타일 */
+.admin-container .tabs .tab-content#students-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-container .tabs .tab-content#students-content th,
+.admin-container .tabs .tab-content#students-content td {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.admin-container .tabs .tab-content#students-content th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* 수강생 목록이 너무 길어지는 경우 줄바꿈 */
+.admin-container .tabs .tab-content#students-content td:last-child {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
