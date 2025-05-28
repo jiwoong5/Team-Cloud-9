@@ -1,117 +1,56 @@
-# backend
+# Team Cloud-9: 수강신청 시스템
 
-FastAPI + MySQL 기반 수강신청 서버 프로젝트입니다.  
-JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·중복 방지 로직, Docker 이미지 빌드 등을 포함합니다.
+본 프로젝트는 대학 수강신청 시스템의 **프론트엔드, 백엔드, 인프라 전반을 포함한 클라우드 기반 통합 시스템**입니다. 수강신청 초기에 수천 명의 동시 접속으로 인한 시스템 과부하 문제를 해결하고, 안정적이고 확장 가능한 서비스를 제공하는 것을 목표로 합니다.
 
----
+## 🔍 문제 배경
 
-## 🚀 주요 기능
+- 매 학기 수강신청 시작 직후 **수천 명의 동시 접속**으로 인해 **시스템 응답 지연** 또는 **일시적인 접속 불가 현상**이 반복됩니다.
+- 커뮤니티(에브리타임 등)에는 이에 대한 **불만이 자주 제기**되고 있으며, 이는 학생들의 학사 계획에 **직접적인 영향을 미칩니다**.
+- 대학은 정보자원의 효율적 활용을 위해 **통합전산센터(Integrated Data Center)**를 운영 중이나, 정적 인프라는 **자동 확장(Auto Scaling)**을 지원하지 않아 **트래픽 변화 대응이 어려우며 리소스 낭비**가 발생합니다.
 
-- **인증/사용자 관리**: JWT 로그인 · 로그아웃 · 사용자 정보 조회  
-- **강의 조회**: 강의 목록 조회 · 상세 조회 (필터·페이징 지원)  
-- **학생 관리**: 학생 등록 · 조회  
-- **수강신청(Registrations)**: 신청 · 내역 조회 · 취소 · 경쟁률 확인 · 대기목록 등록  
-- **관리자용**  
-  - 학기 관리: 학기 생성·수정·조회  
-  - 강의 관리: 강의 개설·수정·삭제 · 수강생 명단 조회  
-  - 시스템 모니터링: 상태 확인 · 메트릭 조회 · 오토스케일 설정  
-- **부하 테스트**: `/load` 엔드포인트 (옵션)
+## 🧩 시스템 아키텍처
 
----
+- **민감한 학사 정보**(학번, 성적 등)는 **내부 시스템**에 유지
+- **수강신청 처리 로직 및 UI**는 **클라우드 기반 모듈로 분리**
+- 클라우드 인프라는 **Auto Scaling 기능을 갖춘 경량 클러스터(k3s)**로 운영
 
-## 📋 요구사항
+## 📁 프로젝트 구조
 
-- Python 3.11.x  
-- [uv](https://github.com/uv-dev/uv) (권장) 또는 pip  
-- MySQL 8.0 이상  
-- Docker (선택)
+Team-Cloud-9/
+├── backend/ # FastAPI + MySQL 기반 백엔드 서비스
+├── frontend/ # React 기반 수강신청 UI
+├── infra/ # k3s 기반 Auto Scaling 클러스터 및 배포 스크립트
 
----
 
-## ⚙️ 설치 및 실행
+## 🚀 빠른 시작
 
-1. 저장소 클론  
-   ```bash
-   git clone https://github.com/사용자/프로젝트.git
-   cd 프로젝트/backend
-   ```
+### 1. 백엔드 실행
+```bash
+cd backend
+poetry install
+uvicorn app.main:app --reload
 
-2. 의존성 설치 및 가상환경 설정  
-   ```bash
-   uv init
-   uv sync
-   ```
+### 2. 프론트엔드 실행
+cd frontend/sugang-system
+npm install
+npm run dev
 
-3. 환경 변수 설정  
-   프로젝트 루트에 `.env` 파일을 생성하고 다음을 작성하세요:  
-   ```dotenv
-   DATABASE_URL=mysql+pymysql://root:비밀번호@localhost:3306/your_db
-   SECRET_KEY=랜덤한_비밀키
-   ```
+### 3. 인프라 설정
+cd infra/k3s-cluster
+./setup.sh
 
-4. 데이터베이스 및 테이블 생성  
-   - 애플리케이션 시작 시 자동으로 SQLModel 메타데이터를 기반으로 테이블이 생성됩니다.  
-   - 또는 수동으로 MySQL에 테이블을 생성하세요.
+### 4. 기술스택
+| 구분        | 사용 기술                  |
+| ----------- | -------------------------- |
+|  프론트엔드 | React, Vite                |
+|    백엔드   | FastAPI, MySQL, SQLAlchemy |
+|    인프라   | k3s, Docker, Helm, Traefik |
 
-5. 서버 실행  
-   ```bash
-   uv run uvicorn app.main:app --reload --env-file .env.test
-   ```
+### 5. 테스트방법
 
-6. (선택) Docker로 실행  
-   ```bash
-   docker build -t your-backend-image .
-   docker run -d -p 8000:8000 --env-file .env.test your-backend-image
-   ```
----
-## 🗂 ERD
+### 6. 참고사항
+각 디렉토리(backend/, frontend/, infra/)에는 별도의 README.md가 존재하며, 각 구성요소의 상세 설정 및 사용법은 해당 문서를 참고하세요.
 
-![Image](https://github.com/user-attachments/assets/f9e65b0c-dfcd-4beb-9d03-44c1ae14276d)
+환경 변수, 배포 전략, 보안 관련 정책은 내부 문서 또는 infra/README.md에 별도 정리됩니다.
 
----
-
-## 📄 API 엔드포인트
-
-### 인증 / 사용자
-- `POST /api/auth/login` : 로그인  
-- `POST /api/auth/logout`: 로그아웃  
-- `GET  /api/auth/user`  : 현재 사용자 정보 조회  
-
-### 강의(Courses)
-- `GET    /api/courses`            : 강의 목록 조회  
-- `GET    /api/courses/{id}`       : 강의 상세 조회  
-
-### 학생(Students)
-- `POST   /api/students`           : 학생 등록  
-- `GET    /api/students`           : 학생 목록 조회  
-- `GET    /api/students/{id}`      : 학생 상세 조회  
-
-### 수강신청(Registrations)
-- `POST   /api/registrations`                  : 수강신청  
-- `GET    /api/registrations`                  : 수강신청 내역 조회  
-- `DELETE /api/registrations/{registrationId}` : 수강신청 취소  
-- `GET    /api/courses/{courseId}/competition` : 수강신청 경쟁률 확인  
-- `POST   /api/courses/{courseId}/waitlist`    : 대기목록 등록  
-
-### 관리자 (Admin)
-- **학기 관리**  
-  - `POST /api/admin/semesters`  
-  - `PUT  /api/admin/semesters/{id}`  
-  - `GET  /api/admin/semesters`  
-- **강의 관리**  
-  - `POST   /api/admin/courses`  
-  - `PUT    /api/admin/courses/{id}`  
-  - `DELETE /api/admin/courses/{id}`  
-  - `GET    /api/admin/courses/{id}/students`  
-- **시스템 관리**  
-  - `GET  /api/admin/system/status`  
-  - `GET  /api/admin/system/metrics`  
-  - `PUT  /api/admin/system/scaling`  
-
----
-
-## 📚 참고
-
-- [FastAPI 공식 문서](https://fastapi.tiangolo.com/)  
-- [SQLModel 튜토리얼](https://sqlmodel.tiangolo.com/)  
-- [uv 서버 매뉴얼](https://docs.astral.sh/uv/)
+made with ☁️ by Team Cloud-9
