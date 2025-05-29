@@ -1,0 +1,17 @@
+# Node.js modules
+node_modules/
+
+# 빌드된 파일
+build/
+dist/
+
+# 환경 설정 파일
+.env
+
+# OS 생성된 파일들
+.DS_Store
+Thumbs.db
+
+# IDE 관련 파일들 (VSCode)
+.vscode/
+.idea/
