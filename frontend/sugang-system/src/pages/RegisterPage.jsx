@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./RegisterPage.css";
 import pnuLogo from "../assets/pnu-logo.png";
 
@@ -27,16 +27,17 @@ export default function RegisterPage() {
     remainingCredits: 0.0,
   });
 
-  // 컴포넌트가 마운트될 때 사용자 정보 가져오기
-  //summary 가져오기 함수
-  const fetchSummary = async () => {
+  // summary 가져오기 함수
+  const fetchSummary = useCallback(async () => {
+    if (!user?.id) return;
+
     try {
       const response = await fetch("http://localhost:5000/api/summary", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: user?.id }), // user.id 전달
+        body: JSON.stringify({ userId: user.id }), // user.id 전달
       });
 
       if (!response.ok)
@@ -47,10 +48,10 @@ export default function RegisterPage() {
     } catch (error) {
       console.error("Summary를 가져오는 데 실패했습니다.", error);
     }
-  };
+  }, [user?.id]);
 
-  //신청내역 가져오기 함수
-  const fetchRegisteredCourses = async () => {
+  // 신청내역 가져오기 함수
+  const fetchRegisteredCourses = useCallback(async () => {
     if (!user?.id) {
       setErrorRegistered("사용자 정보가 없습니다.");
       setRegisteredCourses([]);
@@ -61,51 +62,90 @@ export default function RegisterPage() {
     setErrorRegistered(null);
 
     try {
+      console.log(`Fetching registrations for user: ${user.id}`);
+
       const res = await fetch(
         `http://localhost:8000/api/registrations/${user.id}`
       );
-      if (!res.ok) throw new Error("등록 강의 조회 실패");
+
+      if (!res.ok) {
+        throw new Error(`등록 강의 조회 실패: ${res.status}`);
+      }
 
       const registrations = await res.json();
+      console.log("Registrations received:", registrations);
 
-      const courseDetailPromises = registrations.map((reg) =>
-        fetch(`http://localhost:8000/api/admin/courses/${reg.course_id}`).then(
-          (r) => {
-            if (!r.ok) throw new Error(`강의 상세 조회 실패: ${reg.course_id}`);
-            return r.json();
+      if (!Array.isArray(registrations) || registrations.length === 0) {
+        setRegisteredCourses([]);
+        return;
+      }
+
+      // 각 등록 정보에 대해 강의 상세 정보 조회
+      const courseDetailPromises = registrations.map(async (reg) => {
+        try {
+          console.log(
+            `Fetching course details for course_id: ${reg.course_id}`
+          );
+          const response = await fetch(
+            `http://localhost:8000/api/admin/courses/${reg.course_id}`
+          );
+          console.log(
+            `Response status for course ${reg.course_id}:`,
+            response.status
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              `강의 상세 조회 실패: ${reg.course_id} - ${response.status}`
+            );
           }
-        )
-      );
+
+          const courseData = await response.json();
+          console.log(`Course data for ${reg.course_id}:`, courseData);
+          return courseData;
+        } catch (error) {
+          console.error(`Error fetching course ${reg.course_id}:`, error);
+          return null;
+        }
+      });
 
       const coursesDetails = await Promise.all(courseDetailPromises);
 
-      setRegisteredCourses(coursesDetails);
+      // null 값 필터링
+      const validCourses = coursesDetails.filter((course) => course !== null);
+      console.log("Course details received:", validCourses);
+      console.log("Setting registered courses to state:", validCourses);
+
+      setRegisteredCourses(validCourses);
     } catch (error) {
+      console.error("Error in fetchRegisteredCourses:", error);
       setErrorRegistered(error.message);
       setRegisteredCourses([]);
     } finally {
       setLoadingRegistered(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser); // 여기서 user 상태 설정
+        setUser(parsedUser);
       } catch (error) {
         console.error("Invalid user data in localStorage", error);
       }
     }
   }, []);
 
+  // user가 설정된 후 데이터 fetch
   useEffect(() => {
     if (user?.id) {
-      fetchRegisteredCourses(user.id);
-      fetchSummary(user.id); // 여기에 summary도 함께 호출 가능
+      console.log("User loaded, fetching data for user:", user.id);
+      fetchRegisteredCourses();
+      fetchSummary();
     }
-  }, [user]);
+  }, [user?.id, fetchRegisteredCourses, fetchSummary]);
 
   useEffect(() => {
     const fetchServerTime = async () => {
@@ -129,11 +169,8 @@ export default function RegisterPage() {
   }, []);
 
   const handleLogout = () => {
-    // localStorage에서 사용자 정보 삭제
     localStorage.removeItem("user");
-
-    // 로그아웃 후 로그인 페이지로 리디렉션
-    window.location.href = "/login"; // 또는 history.push("/login") (React Router를 사용한다면)
+    window.location.href = "/login";
   };
 
   const handleSearch = async () => {
@@ -157,7 +194,6 @@ export default function RegisterPage() {
 
       const data = await response.json();
 
-      // 응답 구조에 따라 setCourses 처리
       if (departmentId === "all") {
         setCourses(data.items ?? []);
       } else {
@@ -185,6 +221,7 @@ export default function RegisterPage() {
 
       if (response.status === 201) {
         setRegisterResult("✅ 수강신청 성공");
+        // 성공 후 데이터 새로고침
         await fetchSummary();
         await fetchRegisteredCourses();
       } else if (response.status === 422) {
@@ -199,19 +236,22 @@ export default function RegisterPage() {
   };
 
   const handleDeleteRegistration = async (courseId) => {
-    if (!courseId) return;
+    if (!courseId || !user?.id) return;
 
     try {
+      // 수강신청 취소 API 호출 (실제 엔드포인트에 맞게 수정 필요)
       const response = await fetch(
-        `http://localhost:8000/api/admin/courses/${courseId}`,
+        `http://localhost:8000/api/registrations/${user.id}/${courseId}`,
         {
           method: "DELETE",
         }
       );
 
-      if (response.status === 204) {
+      if (response.status === 204 || response.status === 200) {
         setRegisterResult("✅ 수강 신청 삭제 성공");
-        await fetchRegisteredCourses(); // 삭제 후 목록 갱신
+        // 삭제 후 데이터 새로고침
+        await fetchRegisteredCourses();
+        await fetchSummary();
       } else if (response.status === 422) {
         const data = await response.json();
         setRegisterResult(`❌ 삭제 실패: ${data.message || "유효성 오류"}`);
@@ -219,6 +259,7 @@ export default function RegisterPage() {
         setRegisterResult("❌ 알 수 없는 오류가 발생했습니다");
       }
     } catch (error) {
+      console.error("Delete registration error:", error);
       setRegisterResult("❌ 네트워크 오류: 삭제에 실패했습니다");
     }
   };
@@ -253,7 +294,6 @@ export default function RegisterPage() {
       {/* Combined Content Area */}
       <div className="content-wrapper">
         {/* User Info Section - Left */}
-        {/* 사용자 정보가 있으면 표시 */}
         {user && (
           <div className="user-info">
             <div className="user-header">
@@ -282,21 +322,6 @@ export default function RegisterPage() {
 
         {/* Main Content - Right */}
         <div className="register-content">
-          {/* 
-          div1: 교과목번호 + 분반 + 빠른수강신청, 대기순번신청 
-          <div className="register-inline-section">
-            <div className="input-pair">
-              <label>교과목번호</label>
-              <input type="text" />
-            </div>
-            <div className="input-pair">
-              <label>분반</label>
-              <input type="text" />
-            </div>
-            <button>빠른 수강신청</button>
-            <button>대기순번 신청</button>
-          </div>
-*/}
           {/* div2: 교과목검색 */}
           <div className="section course-search-section">
             <h3>교과목 검색</h3>
@@ -316,7 +341,6 @@ export default function RegisterPage() {
                         <option value="1">컴퓨터공학과</option>
                         <option value="2">전자공학과</option>
                         <option value="3">기계공학과</option>
-                        {/* 필요 시 다른 학과 추가 */}
                       </select>
                     </td>
                   </tr>
@@ -353,7 +377,7 @@ export default function RegisterPage() {
                   </thead>
                   <tbody>
                     {courses.map((c, idx) => (
-                      <tr key={idx}>
+                      <tr key={`course-${c.id}-${idx}`}>
                         <td>{idx + 1}</td>
                         <td>
                           <button
@@ -420,6 +444,7 @@ export default function RegisterPage() {
             </div>
 
             {/* 테이블 영역 */}
+
             <table className="table-section">
               <thead>
                 <tr className="table-header">
@@ -460,7 +485,7 @@ export default function RegisterPage() {
                   </tr>
                 ) : (
                   registeredCourses.map((course, idx) => (
-                    <tr key={course.id}>
+                    <tr key={`registered-${course.id}-${idx}`}>
                       <td>{idx + 1}</td>
                       <td>
                         <button
@@ -475,7 +500,9 @@ export default function RegisterPage() {
                       <td>{course.capacity}</td>
                       <td>{course.enrolled}</td>
                       <td>{course.days_of_week}</td>
-                      <td>{(course.start_time, course.end_time)}</td>
+                      <td>
+                        {course.start_time} - {course.end_time}
+                      </td>
                       <td>{course.location}</td>
                       <td>{course.prerequisite || "-"}</td>
                     </tr>

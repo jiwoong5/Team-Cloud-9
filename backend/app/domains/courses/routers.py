@@ -12,7 +12,7 @@ from app.domains.students.schemas import StudentRead
 router = APIRouter(tags=["courses"], prefix="/admin/courses")
 
 
-# 강의 리스트 페이지네이션
+# 전체 강의 리스트 (페이지네이션)
 @router.get("/", response_model=Page[schemas.CourseRead])
 def read_courses(db: Session = Depends(get_db)):
     return crud.get_courses(db)
@@ -31,8 +31,8 @@ def add_course(
     return new_course
 
 
-# 해당 학부 강의 리스트
-@router.get("/{department_id}", response_model=List[schemas.CourseRead])
+# 해당 학부 강의 리스트 (경로명 충돌 방지)
+@router.get("/by-department/{department_id}", response_model=List[schemas.CourseRead])
 def read_course_by_department(department_id: int, db: Session = Depends(get_db)):
     return crud.get_courses_by_department(db, department_id)
 
@@ -41,6 +41,15 @@ def read_course_by_department(department_id: int, db: Session = Depends(get_db))
 @router.get("/{course_id}/students", response_model=List[StudentRead])
 def read_students_by_course(course_id: int, db: Session = Depends(get_db)):
     return crud.get_students_by_course(db, course_id)
+
+
+# 강의 조회 (단일 강의)
+@router.get("/{course_id}", response_model=schemas.CourseRead)
+def read_course(course_id: int, db: Session = Depends(get_db)):
+    course = crud.get_course(db, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    return course
 
 
 # 강의 업데이트
@@ -63,21 +72,9 @@ def update_course(
 
 # 강의 삭제
 @router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_course(
-        course_id: int,
-        db: Session = Depends(get_db)
-):
+def delete_course(course_id: int, db: Session = Depends(get_db)):
     course = crud.get_course(db, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     db.delete(course)
     db.commit()
-    return
-
-
-@router.get("/{course_id}", response_model=schemas.CourseRead)
-def read_course(course_id: int, db: Session = Depends(get_db)):
-    course = crud.get_course(db, course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-    return course
