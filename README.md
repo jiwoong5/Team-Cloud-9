@@ -40,11 +40,11 @@ cd infra/k3s-cluster
 ./setup.sh
 
 ### 4. 기술스택
-| 구분        | 사용 기술                  |
+| 구분         | 사용 기술                  |
 | ----------- | -------------------------- |
-|  프론트엔드 | React, Vite                |
-|    백엔드   | FastAPI, MySQL, SQLAlchemy |
-|    인프라   | k3s, Docker, Helm, Traefik |
+|   프론트엔드   | React                   |
+|    백엔드    | FastAPI, MySQL           |
+|    인프라    | k3s, Docker              |
 
 ### 5. 테스트방법
 
