@@ -1,9 +1,14 @@
 from fastapi import APIRouter
-from starlette.status import HTTP_200_OK
+from starlette.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 
 from app.domains.grafana.crud import get_cpu, get_memory
 
 router = APIRouter(prefix="/grafana", tags=["monitor"])
+
+
+@router.get("", status_code=HTTP_204_NO_CONTENT)
+async def get_info():
+    return None
 
 
 @router.get("/cpu-usage", status_code=HTTP_200_OK)
@@ -29,4 +34,3 @@ async def get_node_status():
 @router.get("/network-traffic", status_code=HTTP_200_OK)
 async def get_network_traffic():
     return None
-
