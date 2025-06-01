@@ -13,10 +13,10 @@ from ..users.models import User, UserRole
 logger = logging.getLogger('uvicorn.error')
 
 
-def get_registers(db: Session, student_id: int | None = None):
+def get_registers(db: Session, user_id: int | None = None):
     stmt = select(Register)
-    if student_id is not None:
-        stmt = stmt.where(Register.user_id == student_id)
+    if user_id is not None:
+        stmt = stmt.where(Register.user_id == user_id)
     return db.exec(stmt).all()
 
 
@@ -56,10 +56,10 @@ def get_student_register(db: OrmSession, current_user: User) -> list[Register] |
     return db.query(Register).where(Register.user_id == current_user.id).all()
 
 
-def check_user_registered(db: Session, student_id: int, course_id: int) -> bool:
+def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
     stmt = (
         select(Register)
-        .where(Register.user_id == student_id,
+        .where(Register.user_id == user_id,
                Register.course_id == course_id)
     )
     return db.exec(stmt).first() is not None
@@ -67,7 +67,7 @@ def check_user_registered(db: Session, student_id: int, course_id: int) -> bool:
 
 def delete_registrations_by_course_id(db: Session, course_id: int, current_user: User):
     if current_user.role != UserRole.ADMIN:
-        return HTTPException(status_code=400, detail="Only Allowed to Admin User")
+        return HTTPException(status_code=403, detail="Only Allowed to Admin User")
     stmt = select(Register).where(Register.course_id == course_id)
     register = db.exec(stmt).all()
     if not register:

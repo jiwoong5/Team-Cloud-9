@@ -75,7 +75,7 @@ class UserCRUD:
         user = self.session.exec(statement).first()
         if user is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {user_id}")
-        return UserResponse.from_orm(user)
+        return UserResponse.model_validate(user)
 
     def authenticate_user(self, username: str, password: str) -> Optional[User]:
         user = self.get_user_by_username(username)

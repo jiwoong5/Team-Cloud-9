@@ -20,7 +20,7 @@ def get_courses(db: Session) -> list[Course]:
 
 def create_course(db: Session, course_in: CourseCreate, current_user: User) -> Course:
     if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=400, detail="Only Allowed to Amin User")
+        raise HTTPException(status_code=403, detail="Only Allowed to Admin User")
     course = Course(**course_in.dict())
     stmt = select(Course).where(Course.name == course.name, Course.course_code == course.course_code)
     # 중복된 강의가 있는지 확인
@@ -70,5 +70,5 @@ def get_courses_by_professor(db: Session, current_user: User) -> List[CourseRead
         select(Course)
         .where(Course.user_id == user_id))
     course_list = db.exec(stmt).all()
-    course_reads = [CourseRead.from_orm(c) for c in course_list]
+    course_reads = [CourseRead.model_validate(c) for c in course_list]
     return course_reads
