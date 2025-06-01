@@ -1,19 +1,22 @@
-[tool.poetry]
+[project]
 name = "backend"
 version = "0.1.0"
-packages = [
-  { include = "app" }
-]
 description = "Add your description here"
-
-[tool.poetry.dependencies]
-python = ">=3.11,<4.0"
-fastapi-pagination = ">=0.13.1"
-fastapi = ">=0.115.12"
-pydantic-settings = ">=2.9.1"
-sqlalchemy = ">=2.0.41"
-sqlmodel = ">=0.0.24"
-uvicorn = ">=0.34.2"
-pymysql = ">=1.1.1"
-email-validator = ">=2.2.0"
-cryptography = ">=45.0.3"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "fastapi-pagination >=0.13.1",
+    "fastapi >=0.115.12",
+    "pydantic-settings  >=2.9.1",
+    "sqlalchemy  >=2.0.41",
+    "sqlmodel  >=0.0.24",
+    "uvicorn  >=0.34.2",
+    "pymysql  >=1.1.1",
+    "email-validator  >=2.2.0",
+    "cryptography  >=45.0.3",
+    "passlib>=1.7.4",
+    "jwt>=1.3.1",
+    "python-jose[cryptography]>=3.5.0,<4.0.0",
+    "bcrypt (>=4.3.0,<5.0.0)",
+    "psutil (>=7.0.0,<8.0.0)",
+    "kubernetes (>=32.0.1,<33.0.0)",
+]
