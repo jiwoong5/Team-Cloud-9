@@ -11,7 +11,7 @@ class Course(SQLModel, table=True):
     course_code: str = Field(index=True, nullable=False, max_length=10)
     name: str = Field(nullable=False, max_length=100)
     description: Optional[str] = Field(default=None)
-    professor_id: int = Field(foreign_key="professors.id", nullable=False)
+    user_id: int = Field(foreign_key="users.id", nullable=False)
     location: Optional[str] = Field(default=None, max_length=100)
     days_of_week: Optional[str] = Field(default=None, max_length=20)
     start_time: Optional[time] = Field(default=None)

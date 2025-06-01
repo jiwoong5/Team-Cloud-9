@@ -102,7 +102,13 @@ export default function RegisterPage() {
 
           const courseData = await response.json();
           console.log(`Course data for ${reg.course_id}:`, courseData);
-          return courseData;
+
+          // 등록 정보의 id를 강의 데이터에 추가하여 반환
+          return {
+            ...courseData,
+            registration_id: reg.id, // 등록 ID 추가
+            enrolled_at: reg.enrolled_at, // 등록 시간도 추가 (필요시 사용)
+          };
         } catch (error) {
           console.error(`Error fetching course ${reg.course_id}:`, error);
           return null;
@@ -186,7 +192,7 @@ export default function RegisterPage() {
       const url =
         departmentId === "all"
           ? "http://localhost:8000/api/admin/courses/?page=1&size=50"
-          : `http://localhost:8000/api/admin/courses/${departmentId}`;
+          : `http://localhost:8000/api/admin/courses/by-department/${departmentId}`;
 
       const response = await fetch(url);
 
@@ -235,13 +241,13 @@ export default function RegisterPage() {
     }
   };
 
-  const handleDeleteRegistration = async (courseId) => {
-    if (!courseId || !user?.id) return;
+  const handleDeleteRegistration = async (registrationId) => {
+    if (!registrationId || !user?.id) return;
 
     try {
-      // 수강신청 취소 API 호출 (실제 엔드포인트에 맞게 수정 필요)
+      // 수강신청 취소 API 호출 - 등록 ID를 사용
       const response = await fetch(
-        `http://localhost:8000/api/registrations/${user.id}/${courseId}`,
+        `http://localhost:8000/api/registrations/${registrationId}`,
         {
           method: "DELETE",
         }
@@ -450,6 +456,8 @@ export default function RegisterPage() {
                 <tr className="table-header">
                   <th className="header-cell">NO</th>
                   <th className="header-cell">삭제</th>
+                  <th className="header-cell">등록ID</th>{" "}
+                  {/* 등록 ID 컬럼 추가 */}
                   <th className="header-cell">교과목명</th>
                   <th className="header-cell">교과목번호</th>
                   <th className="header-cell">학점</th>
@@ -464,14 +472,14 @@ export default function RegisterPage() {
               <tbody>
                 {loadingRegistered ? (
                   <tr>
-                    <td colSpan="11" style={{ textAlign: "center" }}>
+                    <td colSpan="12" style={{ textAlign: "center" }}>
                       불러오는 중...
                     </td>
                   </tr>
                 ) : errorRegistered ? (
                   <tr>
                     <td
-                      colSpan="11"
+                      colSpan="12"
                       style={{ textAlign: "center", color: "red" }}
                     >
                       {errorRegistered}
@@ -479,21 +487,24 @@ export default function RegisterPage() {
                   </tr>
                 ) : registeredCourses.length === 0 ? (
                   <tr>
-                    <td colSpan="11" style={{ textAlign: "center" }}>
+                    <td colSpan="12" style={{ textAlign: "center" }}>
                       등록된 강의가 없습니다.
                     </td>
                   </tr>
                 ) : (
                   registeredCourses.map((course, idx) => (
-                    <tr key={`registered-${course.id}-${idx}`}>
+                    <tr key={`registered-${course.registration_id}-${idx}`}>
                       <td>{idx + 1}</td>
                       <td>
                         <button
-                          onClick={() => handleDeleteRegistration(course.id)}
+                          onClick={() =>
+                            handleDeleteRegistration(course.registration_id)
+                          }
                         >
                           삭제
                         </button>
                       </td>
+                      <td>{course.registration_id}</td>
                       <td>{course.name}</td>
                       <td>{course.course_code}</td>
                       <td>{course.credits}</td>

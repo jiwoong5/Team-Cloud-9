@@ -44,8 +44,26 @@ export default function AdminPage() {
     window.location.href = "/login"; // 또는 history.push("/login") (React Router를 사용한다면)
   };
 
-  const handleDeleteLecture = (id) => {
-    setLectures(lectures.filter((lec) => lec.id !== id));
+  const handleDeleteCourse = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/admin/courses/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("삭제 실패");
+      }
+
+      // 삭제 성공 시 상태에서 해당 강의 제거
+      setCourses(courses.filter((course) => course.id !== id));
+      alert("강의가 성공적으로 삭제되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("강의 삭제 실패: " + error.message);
+    }
   };
 
   //강의개설란 입력 감지 함수
@@ -280,26 +298,34 @@ export default function AdminPage() {
                 <thead>
                   <tr>
                     <th>NO</th>
-                    <th>교과목번호</th> {/* course_code */}
-                    <th>교과목명</th> {/* name */}
-                    <th>담당교수 ID</th> {/* professor_id */}
-                    <th>강의실</th> {/* location */}
-                    <th>요일</th> {/* days_of_week */}
-                    <th>시작 시간</th> {/* start_time */}
-                    <th>종료 시간</th> {/* end_time */}
-                    <th>개설학과 ID</th> {/* department_id */}
-                    <th>학점</th> {/* credits */}
-                    <th>제한 인원</th> {/* capacity */}
-                    <th>수강 인원</th> {/* enrolled */}
-                    <th>선수과목</th> {/* prerequisite */}
-                    <th>학기</th> {/* semester */}
-                    <th>설명</th> {/* description */}
+                    <th>관리</th> {/* 삭제 버튼 */}
+                    <th>과목id</th> {/* 삭제 버튼 */}
+                    <th>교과목번호</th>
+                    <th>교과목명</th>
+                    <th>담당교수 ID</th>
+                    <th>강의실</th>
+                    <th>요일</th>
+                    <th>시작 시간</th>
+                    <th>종료 시간</th>
+                    <th>개설학과 ID</th>
+                    <th>학점</th>
+                    <th>제한 인원</th>
+                    <th>수강 인원</th>
+                    <th>선수과목</th>
+                    <th>학기</th>
+                    <th>설명</th>
                   </tr>
                 </thead>
                 <tbody>
                   {courses.map((c, idx) => (
                     <tr key={c.id}>
                       <td>{idx + 1}</td>
+                      <td>
+                        <button onClick={() => handleDeleteCourse(c.id)}>
+                          삭제
+                        </button>
+                      </td>
+                      <td>{c.id}</td>
                       <td>{c.course_code}</td>
                       <td>{c.name}</td>
                       <td>{c.professor_id}</td>

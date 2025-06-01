@@ -512,7 +512,7 @@ strong {
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  padding: 30px 24px;
   margin: 25px 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -522,78 +522,83 @@ strong {
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
 }
 
-/* 제목 스타일 */
+/* 제목 */
 .course-search-container h3 {
-  color: #1a1a1a;
-  font-size: 24px;
+  color: #111827;
+  font-size: 22px;
   font-weight: 700;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
+  margin-bottom: 24px;
   border-bottom: 2px solid #f3f4f6;
-  letter-spacing: -0.5px;
+  padding-bottom: 12px;
+  letter-spacing: -0.3px;
 }
 
 /* 테이블 스타일 */
 .search-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 18px;
+  border-spacing: 0 20px;
+}
+
+.search-table th,
+.search-table td {
+  vertical-align: middle;
+  height: 52px; /* 고정 높이 부여 */
 }
 
 .search-table th {
-  text-align: left;
-  padding: 12px 25px;
+  padding: 0 20px;
   font-weight: 600;
   color: #374151;
-  font-size: 15px;
-  vertical-align: middle;
+  font-size: 14px;
   white-space: nowrap;
-  width: 180px;
+  width: 140px;
 }
 
 .search-table td {
-  padding: 0 25px;
+  padding: 0 20px;
 }
 
-/* 입력 필드 공통 스타일 */
+/* 공통 입력 필드 */
 .select-input,
 .text-input {
   width: 100%;
-  padding: 14px 18px;
+  height: 44px; /* 고정 높이 부여 */
+  padding: 0 16px; /* 좌우 패딩만 */
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: #f9fafb;
-  font-size: 15px;
+  font-size: 14px;
   color: #111827;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border 0.25s ease, box-shadow 0.25s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 16px center;
+  background-position: right 12px center;
   background-size: 18px;
 }
 
 .select-input:focus,
 .text-input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   background-color: #ffffff;
 }
 
-/* 라디오 버튼 그룹 */
+/* 라디오 그룹 */
 .radio-group {
   display: flex;
-  gap: 25px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .radio-label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   color: #4b5563;
-  transition: color 0.2s ease;
+  cursor: pointer;
 }
 
 .radio-label:hover {
@@ -602,11 +607,11 @@ strong {
 
 .radio-label input[type="radio"] {
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid #d1d5db;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 8px;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -619,8 +624,8 @@ strong {
 .radio-label input[type="radio"]:checked::after {
   content: "";
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background: white;
   border-radius: 50%;
   top: 50%;
@@ -866,7 +871,7 @@ strong {
 .table-section {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1200px; /* 필요에 따라 조절 */
+  min-width: 1300px; /* 너비도 소폭 증가 */
   font-family: Arial, sans-serif;
   background-color: #fff;
   box-sizing: border-box;
@@ -874,10 +879,23 @@ strong {
   table-layout: fixed;
 }
 
-/* 헤더 행은 기존대로 grid 레이아웃 유지 */
+/* 헤더 행 grid 레이아웃 (13개 컬럼) */
 .table-section thead tr.table-header {
   display: grid;
-  grid-template-columns: 50px 50px 150px 100px 60px 100px 60px 80px 60px 200px 80px 60px;
+  grid-template-columns:
+    50px /* NO */
+    60px /* 삭제 */
+    100px /* 등록ID */
+    160px /* 교과목명 */
+    100px /* 교과목번호 */
+    60px /* 학점 */
+    100px /* 정원 */
+    80px /* 수강인원 */
+    60px /* 요일 */
+    180px /* 시간 */
+    100px /* 위치 */
+    100px /* 비고 */
+    1fr; /* 추가 공간 (유동 컬럼 여유용) */
   position: sticky;
   top: 0;
   left: 0;
@@ -899,7 +917,20 @@ strong {
 /* tbody 행도 grid 레이아웃으로 동일하게 맞춤 */
 .table-section tbody tr {
   display: grid;
-  grid-template-columns: 50px 50px 150px 100px 60px 100px 60px 80px 60px 200px 80px 60px;
+  grid-template-columns:
+    50px /* NO */
+    60px /* 삭제 */
+    100px /* 등록ID */
+    160px /* 교과목명 */
+    100px /* 교과목번호 */
+    60px /* 학점 */
+    100px /* 정원 */
+    80px /* 수강인원 */
+    60px /* 요일 */
+    180px /* 시간 */
+    100px /* 위치 */
+    100px /* 비고 */
+    1fr; /* 유동 여백 */
   border-bottom: 1px solid #e5e5e5;
   transition: background-color 0.2s;
 }
@@ -917,21 +948,28 @@ strong {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: none; /* 테두리는 tr에서 처리 */
+  border-bottom: none;
 }
 
-/* 마지막 셀 테두리 제거 (오른쪽) */
+/* 마지막 셀 테두리 제거 */
 .table-section tbody td:last-child {
   border-right: none;
 }
 
-/* 시간표요약 컬럼(10번째)의 td는 줄바꿈 허용 */
+/* 시간 컬럼 줄바꿈 허용 */
 .table-section tbody td:nth-child(10) {
   white-space: pre-line;
   text-align: left;
 }
 
-/* 삭제 버튼 스타일 - 위치 조정됨 */
+/* 삭제 버튼이 포함된 td를 flex로 중앙 정렬 */
+.table-section tbody td:nth-child(2) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 삭제 버튼 스타일 - 중앙 위치 조정 */
 .table-section button {
   padding: 4px 8px;
   background-color: #e74c3c;
@@ -941,12 +979,10 @@ strong {
   cursor: pointer;
   font-size: 0.9rem;
   transition: background-color 0.2s;
-  position: relative;
-  left: -6px;
-  top: 0px;
+  /* 위치 조정 제거 */
+  position: static;
 }
-
-.table-section button:hover {
+ㅇ .table-section button:hover {
   background-color: #c0392b;
 }
 
