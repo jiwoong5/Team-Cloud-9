@@ -47,7 +47,17 @@ JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·
    ```dotenv
    DATABASE_URL=mysql+pymysql://root:비밀번호@localhost:3306/your_db
    SECRET_KEY=랜덤한_비밀키
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=30
    ```
+   
+   그 후 아래와 같이 gitignore를 생성하여 .env를 추가한 뒤 아래와 같은 명령어를 통해 .env파일은 로컬에서만 관리할 수 있도록 설정합니다.
+   ```bash
+   git rm --cached .env
+   git add .gitignore
+   git commmit -m "chore: .env ignore"
+   git push 
+   ``` 
 
 4. 데이터베이스 및 테이블 생성
     - 애플리케이션 시작 시 자동으로 SQLModel 메타데이터를 기반으로 테이블이 생성됩니다.
@@ -68,7 +78,7 @@ JWT 인증·권한 처리, 수강신청 경쟁률·대기목록, 좌석 제한·
 
 ## 🗂 ERD
 
-![Image](https://github.com/user-attachments/assets/f9e65b0c-dfcd-4beb-9d03-44c1ae14276d)
+![Image](https://github.com/user-attachments/assets/01be056c-ac40-452a-a43c-77a817ea0278)
 
 ---
 
