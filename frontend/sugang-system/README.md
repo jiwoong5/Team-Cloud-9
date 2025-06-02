@@ -21,6 +21,7 @@ React를 기본으로 한 대학 수강신청 시스템 프론트엔드입니다
 📦 Vite
 
 🎨 CSS Modules
+
 ```
 📁 폴더 구조.
 ├── README.md
