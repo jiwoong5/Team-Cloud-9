@@ -29,7 +29,7 @@ def register_student(db: Session, register_in: RegisterCreate, current_user: Use
     if check_user_registered(db, register.user_id, course_id):
         raise HTTPException(status_code=400, detail="Already Registered in the course")
     if course.enrolled >= course.capacity:
-        return HTTPException(status_code=400, detail="Already Fulled Course")
+        raise HTTPException(status_code=400, detail="Already Fulled Course")
     db.add(register)
     db.commit()
     db.refresh(register)
