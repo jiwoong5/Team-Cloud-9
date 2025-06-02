@@ -24,18 +24,7 @@ React를 기본으로 한 대학 수강신청 시스템 프론트엔드입니다
 
 📁 폴더 구조
 
-sugang-system/
-├── node_modules/
-├── public/
-├── src/
-│   ├── App.js
-│   ├── pages/
-│   │   ├── AdminPage.jsx / .css
-│   │   ├── LoginPage.jsx / .css
-│   │   ├── MainPage.jsx / .css
-│   │   ├── RegisterPage.jsx / .css
-│   │   └── SystemAdminPage.jsx / .css
-
+<pre lang="md"> ``` sugang-system/ ├── node_modules/ ├── public/ ├── screenshots/ │ └── main.png ├── src/ │ ├── App.js │ ├── pages/ │ │ ├── AdminPage.jsx / AdminPage.css │ │ ├── LoginPage.jsx / LoginPage.css │ │ ├── MainPage.jsx / MainPage.css │ │ ├── RegisterPage.jsx / RegisterPage.css │ │ └── SystemAdminPage.jsx / SystemAdminPage.css ├── .env ├── package.json └── README.md ``` </pre>
 ⚙️ 설치 및 실행
 
 # 1. 저장소 클론
