@@ -22,8 +22,46 @@ React를 기본으로 한 대학 수강신청 시스템 프론트엔드입니다
 
 🎨 CSS Modules
 
-📁 폴더 구조
-<pre> ``` 📁 sugang-system/ ├── node_modules/ ├── public/ ├── screenshots/ │ └── main.png ├── src/ │ ├── App.js │ └── pages/ │ ├── AdminPage.jsx / AdminPage.css │ ├── LoginPage.jsx / LoginPage.css │ ├── MainPage.jsx / MainPage.css │ ├── RegisterPage.jsx / RegisterPage.css │ └── SystemAdminPage.jsx / SystemAdminPage.css ├── .env ├── package.json └── README.md ``` </pre>
+📁 폴더 구조.
+├── README.md
+├── package-lock.json
+├── package.json
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── screenshots
+│   ├── login_page.png
+│   ├── professor_page.png
+│   └── student_page.png
+├── src
+│   ├── App.css
+│   ├── App.js
+│   ├── App.test.js
+│   ├── assets
+│   │   └── pnu-logo.png
+│   ├── index.css
+│   ├── index.js
+│   ├── pages
+│   │   ├── AdminPage.css
+│   │   ├── AdminPage.jsx
+│   │   ├── LoginPage.css
+│   │   ├── LoginPage.jsx
+│   │   ├── MainPage.css
+│   │   ├── MainPage.jsx
+│   │   ├── RegisterPage.css
+│   │   ├── RegisterPage.jsx
+│   │   ├── SystemAdminPage.css
+│   │   └── SystemAdminPage.jsx
+│   ├── reportWebVitals.js
+│   └── setupTests.js
+└── structure.txt
+
+6 directories, 31 files
+
 
 ⚙️ 설치 및 실행
 
