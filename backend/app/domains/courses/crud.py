@@ -19,7 +19,7 @@ def get_courses(db: Session) -> list[Course]:
 
 
 def create_course(db: Session, course_in: CourseCreate, current_user: User) -> Course:
-    if current_user.role != UserRole.ADMIN:
+    if current_user.role != UserRole.PROFESSOR:
         raise HTTPException(status_code=403, detail="Only Allowed to Admin User")
     course = Course(**course_in.dict())
     stmt = select(Course).where(Course.name == course.name, Course.course_code == course.course_code)
@@ -31,6 +31,7 @@ def create_course(db: Session, course_in: CourseCreate, current_user: User) -> C
     db.commit()
     db.refresh(course)
     return course
+
 
 
 def get_courses_by_department(db: Session, department_id: int) -> list[Course]:

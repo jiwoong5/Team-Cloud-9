@@ -66,7 +66,7 @@ def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
 
 
 def delete_registrations_by_course_id(db: Session, course_id: int, current_user: User):
-    if current_user.role != UserRole.ADMIN:
+    if current_user.role != UserRole.PROFESSOR:
         return HTTPException(status_code=403, detail="Only Allowed to Admin User")
     stmt = select(Register).where(Register.course_id == course_id)
     register = db.exec(stmt).all()

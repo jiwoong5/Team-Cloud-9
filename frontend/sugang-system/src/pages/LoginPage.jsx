@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./LoginPage.css";
 import pnuLogo from "../assets/pnu-logo.png";
 import { useNavigate } from "react-router-dom";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginPage() {
   const [id, setId] = useState(""); // ID 상태
@@ -9,41 +10,125 @@ export default function LoginPage() {
   const [error, setError] = useState(""); // 오류 메시지 상태
   const navigate = useNavigate();
 
+  //회원가입
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState(""); // 예: "student"
+  const [username, setUsername] = useState("");
+
+  //로그인 확인
+  const [isLogin, setIsLogin] = useState(true);
+
   // 로그인 처리
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      // 로그인 API 호출 (여기서는 가상의 API로 예시 나중에 상해님 제공 api로 변경)
-      const response = await fetch("http://localhost:5000/api/login", {
+      // 1. 로그인 요청
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, password }),
+        body: JSON.stringify({
+          username: id,
+          password: password,
+        }),
       });
 
       const data = await response.json();
 
-      if (data.success) {
-        // 로그인 성공시 처리
-        console.log("로그인 성공", data);
-        localStorage.setItem("user", JSON.stringify(data.user)); // 로그인 정보 로컬스토리지 저장
-        if (data.role === "admin") {
-          navigate("/admin"); // 관리자 페이지로
+      if (response.ok) {
+        // 2. access_token 저장
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("token_type", data.token_type);
+
+        // 3. 프로필 정보 요청
+        const profileResponse = await fetch(`${API_BASE_URL}/api/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${data.access_token}`,
+          },
+        });
+
+        if (!profileResponse.ok) {
+          throw new Error("프로필 정보를 가져오는 데 실패했습니다.");
         }
-        if (data.role === "systemadmin") {
-          navigate("/systemadmin"); //시스템 관리자 페이지로
-        } else {
-          navigate("/main"); // 일반 사용자 페이지로
+
+        const profile = await profileResponse.json();
+
+        // 4. 사용자 role에 따라 라우팅
+        switch (profile.role) {
+          case "student":
+            navigate("/main");
+            break;
+          case "professor":
+            navigate("/admin");
+            break;
+          case "admin":
+            navigate("/systemadmin");
+            break;
+          default:
+            setError("알 수 없는 사용자 역할입니다.");
+            break;
         }
       } else {
-        // 로그인 실패시 처리
-        setError(data.message); // 오류 메시지 상태 업데이트
+        setError("로그인에 실패했습니다. 아이디 또는 비밀번호를 확인하세요.");
       }
     } catch (err) {
-      setError("로그인 중 오류가 발생했습니다."); // API 호출 실패 시 오류 메시지
       console.error(err);
+      setError("로그인 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          role,
+          username,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.text();
+        console.log("회원가입 성공:", result);
+
+        //상태 초기화
+
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setRole("");
+        setError(""); // 에러 메시지도 제거
+
+        alert("회원가입이 완료되었습니다.");
+        navigate("/login");
+      } else {
+        const errorData = await response.json();
+        console.error("회원가입 실패:", errorData);
+
+        // 사용자 친화적인 메시지 추출
+        if (
+          errorData.detail &&
+          Array.isArray(errorData.detail) &&
+          errorData.detail[0].loc?.includes("role")
+        ) {
+          setError("역할을 선택해주세요. (학생, 교수, 관리자 중에서)");
+        } else {
+          setError("회원가입에 실패했습니다. 입력값을 확인해주세요.");
+        }
+      }
+    } catch (error) {
+      console.error("에러 발생:", error);
+      setError("회원가입 중 오류가 발생했습니다.");
     }
   };
 
@@ -53,31 +138,88 @@ export default function LoginPage() {
         <img src={pnuLogo} alt="부산대학교 로고" className="pnu-logo" />
       </header>
 
-      <div className="login-box">
-        <h2 className="login-title">로그인</h2>
-        {error && <p className="error-message">{error}</p>}{" "}
-        {/* 오류 메시지 출력 */}
-        <form onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="ID"
-            className="login-input"
-            value={id}
-            onChange={(e) => setId(e.target.value)} // 입력값 상태 업데이트
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="login-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)} // 입력값 상태 업데이트
-            required
-          />
-          <button type="submit" className="login-button">
+      <div className="auth-box">
+        <div className="auth-toggle">
+          <button
+            onClick={() => setIsLogin(true)}
+            className={isLogin ? "active" : ""}
+          >
             로그인
           </button>
-        </form>
+          <button
+            onClick={() => setIsLogin(false)}
+            className={!isLogin ? "active" : ""}
+          >
+            회원가입
+          </button>
+        </div>
+
+        {error && <p className="error-message">{error}</p>}
+
+        {isLogin ? (
+          <form onSubmit={handleLogin}>
+            <input
+              type="text"
+              placeholder="ID"
+              className="login-input"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button type="submit" className="login-button">
+              로그인
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleRegister}>
+            <input
+              type="text"
+              placeholder="Username"
+              className="login-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              className="login-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <select
+              className="login-input"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="">선택</option>
+              <option value="student">학생</option>
+              <option value="professor">교수</option>
+              <option value="admin">관리자</option>
+            </select>
+            <button type="submit" className="login-button">
+              회원가입
+            </button>
+          </form>
+        )}
       </div>
 
       <div className="schedule-section">

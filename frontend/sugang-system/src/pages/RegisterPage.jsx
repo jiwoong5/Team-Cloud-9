@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "./RegisterPage.css";
 import pnuLogo from "../assets/pnu-logo.png";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function RegisterPage() {
   // 사용자 정보를 저장할 상태
   const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+
+  //서버시간
   const [serverDate, setServerDate] = useState("");
   const [serverTime, setServerTime] = useState("");
+
   // CourseSearch 관련 상태
   const [departmentId, setDepartmentId] = useState(""); // 선택한 학과 ID
   const [courses, setCourses] = useState([]); // 조회된 강의 목록
@@ -27,46 +32,133 @@ export default function RegisterPage() {
     remainingCredits: 0.0,
   });
 
+  useEffect(() => {
+    // 서버 시간을 실시간으로 가져오는 코드 (POST 요청)
+    const fetchServerTime = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/getServerTime`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}), // 빈 body (요청 파라미터 없음)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("서버 응답 데이터:", data);
+          setServerDate(data.date);
+          setServerTime(data.time);
+        } else {
+          console.error("서버 응답 실패:", response.status);
+        }
+      } catch (error) {
+        console.error("서버 시간을 가져오는 데 실패했습니다.", error);
+      }
+    };
+
+    fetchServerTime();
+    const interval = setInterval(fetchServerTime, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      setAccessToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!accessToken) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+        } else {
+          console.error("프로필 불러오기 실패", response.status);
+        }
+      } catch (err) {
+        console.error("프로필 요청 에러", err);
+      }
+    };
+
+    fetchProfile();
+  }, [accessToken]);
+
   // summary 가져오기 함수
   const fetchSummary = useCallback(async () => {
-    if (!user?.id) return;
-
     try {
-      const response = await fetch("http://localhost:5000/api/summary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: user.id }), // user.id 전달
-      });
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("Access token이 없습니다.");
+        return;
+      }
 
-      if (!response.ok)
+      const response = await fetch(
+        `${API_BASE_URL}/api/registrations/summary`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
-      setSummary(data);
+
+      const appliedCredits = data.credits;
+      const availableCredits = 21;
+      const remainingCredits = availableCredits - appliedCredits;
+      const appliedCoursesCount = Math.floor(appliedCredits / 3);
+
+      // appliedCoursesCount는 현재 응답에서 없으므로 별도 API 필요. 일단 0으로 대체
+      setSummary({
+        appliedCoursesCount, // 또는 실제 값을 가져올 수 있다면 반영
+        appliedCredits,
+        availableCredits,
+        remainingCredits,
+      });
     } catch (error) {
       console.error("Summary를 가져오는 데 실패했습니다.", error);
     }
-  }, [user?.id]);
+  }, []);
 
   // 신청내역 가져오기 함수
   const fetchRegisteredCourses = useCallback(async () => {
-    if (!user?.id) {
-      setErrorRegistered("사용자 정보가 없습니다.");
-      setRegisteredCourses([]);
-      return;
-    }
-
     setLoadingRegistered(true);
     setErrorRegistered(null);
 
     try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("Access token이 없습니다.");
+        setLoadingRegistered(false);
+        return;
+      }
+
       console.log(`Fetching registrations for user: ${user.id}`);
 
-      const res = await fetch(
-        `http://localhost:8000/api/registrations/${user.id}`
-      );
+      const res = await fetch(`${API_BASE_URL}/api/registrations`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) {
         throw new Error(`등록 강의 조회 실패: ${res.status}`);
@@ -87,11 +179,13 @@ export default function RegisterPage() {
             `Fetching course details for course_id: ${reg.course_id}`
           );
           const response = await fetch(
-            `http://localhost:8000/api/admin/courses/${reg.course_id}`
-          );
-          console.log(
-            `Response status for course ${reg.course_id}:`,
-            response.status
+            `${API_BASE_URL}/api/admin/courses/${reg.course_id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
 
           if (!response.ok) {
@@ -103,11 +197,20 @@ export default function RegisterPage() {
           const courseData = await response.json();
           console.log(`Course data for ${reg.course_id}:`, courseData);
 
-          // 등록 정보의 id를 강의 데이터에 추가하여 반환
+          // API 응답이 단일 객체인지 확인
+          if (!courseData || !courseData.id) {
+            console.warn(
+              `유효하지 않은 course data for ${reg.course_id}:`,
+              courseData
+            );
+            return null;
+          }
+
+          // 등록 정보를 강의 데이터에 추가하여 반환
           return {
             ...courseData,
             registration_id: reg.id, // 등록 ID 추가
-            enrolled_at: reg.enrolled_at, // 등록 시간도 추가 (필요시 사용)
+            enrolled_at: reg.enrolled_at, // 등록 시간도 추가
           };
         } catch (error) {
           console.error(`Error fetching course ${reg.course_id}:`, error);
@@ -132,18 +235,6 @@ export default function RegisterPage() {
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Invalid user data in localStorage", error);
-      }
-    }
-  }, []);
-
   // user가 설정된 후 데이터 fetch
   useEffect(() => {
     if (user?.id) {
@@ -154,28 +245,13 @@ export default function RegisterPage() {
   }, [user?.id, fetchRegisteredCourses, fetchSummary]);
 
   useEffect(() => {
-    const fetchServerTime = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/getServerTime");
-        if (response.ok) {
-          const data = await response.json();
-          setServerDate(data.date);
-          setServerTime(data.time);
-        } else {
-          console.error("서버 응답 실패:", response.status);
-        }
-      } catch (error) {
-        console.error("서버 시간을 가져오는 데 실패했습니다.", error);
-      }
-    };
-
-    fetchServerTime();
-    const interval = setInterval(fetchServerTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    console.log("📦 registeredCourses 변경:", registeredCourses);
+  }, [registeredCourses]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    // 로컬 스토리지에서 모든 인증 관련 정보 제거
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token_type");
     window.location.href = "/login";
   };
 
@@ -191,10 +267,14 @@ export default function RegisterPage() {
     try {
       const url =
         departmentId === "all"
-          ? "http://localhost:8000/api/admin/courses/?page=1&size=50"
-          : `http://localhost:8000/api/admin/courses/by-department/${departmentId}`;
+          ? `${API_BASE_URL}/api/admin/courses/?page=1&size=50`
+          : `${API_BASE_URL}/api/admin/courses/department/${departmentId}`;
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) throw new Error("조회 실패");
 
@@ -215,16 +295,17 @@ export default function RegisterPage() {
 
   const handleRegisterCourse = async (courseId, professorId) => {
     try {
-      const response = await fetch("http://localhost:8000/api/registrations", {
+      const response = await fetch(`${API_BASE_URL}/api/registrations`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
-          student_id: user?.id,
+          user_id: user?.id,
           course_id: courseId,
-          professor_id: professorId,
         }),
       });
-
       if (response.status === 201) {
         setRegisterResult("✅ 수강신청 성공");
         // 성공 후 데이터 새로고침
@@ -233,6 +314,9 @@ export default function RegisterPage() {
       } else if (response.status === 422) {
         const data = await response.json();
         setRegisterResult(`❌ 수강신청 실패: ${data.message}`);
+      } else if (response.status === 400) {
+        const data = await response.json();
+        setRegisterResult(`❌ 이미 신청된 과목`);
       } else {
         setRegisterResult("❌ 알 수 없는 오류가 발생했습니다");
       }
@@ -247,7 +331,7 @@ export default function RegisterPage() {
     try {
       // 수강신청 취소 API 호출 - 등록 ID를 사용
       const response = await fetch(
-        `http://localhost:8000/api/registrations/${registrationId}`,
+        `${API_BASE_URL}/api/registrations/${registrationId}`,
         {
           method: "DELETE",
         }
@@ -286,8 +370,8 @@ export default function RegisterPage() {
         </div>
         <div className="nav-right">
           <div className="nav-item">
-            {serverDate}&nbsp;
-            {serverTime}
+            {serverDate ? `${serverDate}` : "날짜 로딩 중"}&nbsp;
+            {serverTime ? `${serverTime.slice(0, 8)}` : "시간 로딩 중"}
           </div>
           <div className="nav-item">
             <button onClick={handleLogout} className="logout-button">
@@ -304,23 +388,23 @@ export default function RegisterPage() {
           <div className="user-info">
             <div className="user-header">
               <h2>
-                {user.name}({user.id})
+                {user.username} ({user.id})
               </h2>
-              <p>
-                {user.department}·{user.major}·{user.year}·{user.degree}
-              </p>
+              <p>{user.email}</p>
             </div>
+
             <div className="semester-info">
               <h2>2025학년도 여름계절/도약</h2>
               <h3>수강신청(학부)</h3>
             </div>
+
             <div className="credit-info">
               <div className="credit-item">
-                <strong>취득학점</strong> <span>{user.earnedCredits}</span>
+                <strong>역할</strong> <span>{user.role}</span>
               </div>
               <div className="credit-item">
-                <strong>수강신청가능학점</strong>{" "}
-                <span>{user.availableCredits}</span>
+                <strong>계정상태</strong>{" "}
+                <span>{user.is_active ? "활성" : "비활성"}</span>
               </div>
             </div>
           </div>
@@ -397,7 +481,7 @@ export default function RegisterPage() {
                         <td>{c.course_code}</td>
                         <td>{c.name}</td>
                         <td>{c.description}</td>
-                        <td>{c.professor_id}</td>
+                        <td>{c.user_id}</td>
                         <td>{c.department_id}</td>
                         <td>{c.credits}</td>
                         <td>{c.capacity}</td>
@@ -428,7 +512,7 @@ export default function RegisterPage() {
               <div className="summary-item">
                 <span className="summary-label">신청과목수</span>
                 <span className="summary-value">
-                  {summary.appliedCoursesCount}건
+                  {summary.appliedCoursesCount}
                 </span>
               </div>
               <div className="summary-item">
