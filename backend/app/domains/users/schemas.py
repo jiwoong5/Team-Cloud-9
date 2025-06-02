@@ -1,10 +1,17 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, ConfigDict
 
-from app.domains.students.schemas import StudentRead
 from app.domains.users.models import UserRole
+
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
 
 
 class UserCreate(BaseModel):
@@ -47,12 +54,11 @@ class UserResponse(BaseModel):
     email: str
     role: UserRole
     is_active: bool
-    created_at: datetime
 
 
 class UserWithStudent(BaseModel):
     user: UserResponse
-    student: Optional[StudentRead] = None
+    student: Optional[UserRead] = None
 
 
 class Token(BaseModel):
