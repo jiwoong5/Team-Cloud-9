@@ -23,8 +23,8 @@ React를 기본으로 한 대학 수강신청 시스템 프론트엔드입니다
 🎨 CSS Modules
 
 📁 폴더 구조
+<pre> ``` 📁 sugang-system/ ├── node_modules/ ├── public/ ├── screenshots/ │ └── main.png ├── src/ │ ├── App.js │ └── pages/ │ ├── AdminPage.jsx / AdminPage.css │ ├── LoginPage.jsx / LoginPage.css │ ├── MainPage.jsx / MainPage.css │ ├── RegisterPage.jsx / RegisterPage.css │ └── SystemAdminPage.jsx / SystemAdminPage.css ├── .env ├── package.json └── README.md ``` </pre>
 
-<pre lang="md"> ``` sugang-system/ ├── node_modules/ ├── public/ ├── screenshots/ │ └── main.png ├── src/ │ ├── App.js │ ├── pages/ │ │ ├── AdminPage.jsx / AdminPage.css │ │ ├── LoginPage.jsx / LoginPage.css │ │ ├── MainPage.jsx / MainPage.css │ │ ├── RegisterPage.jsx / RegisterPage.css │ │ └── SystemAdminPage.jsx / SystemAdminPage.css ├── .env ├── package.json └── README.md ``` </pre>
 ⚙️ 설치 및 실행
 
 # 1. 저장소 클론
