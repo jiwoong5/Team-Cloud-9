@@ -6,6 +6,8 @@
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   min-height: 100vh;
+  margin: 0 auto;
+  max-width: 1000px;
 }
 
 .login-header {
@@ -22,39 +24,92 @@
   object-fit: contain;
 }
 
-.login-box {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 40px;
+.auth-box {
   width: 100%;
-  max-width: 400px;
-  margin-top: 40px;
-}
+  margin: 60px auto;
+  padding: 36px;
+  background: #fbfbfb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: "Pretendard", "Segoe UI", sans-serif;
 
-.login-title {
-  margin-bottom: 20px;
-  text-align: center;
-}
+  /* 내부 요소 수직 중앙 정렬 및 가로 중앙 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 가로 중앙 정렬 */
 
-.login-input,
-.login-button {
-  width: 100%;
-  padding: 10px;
   box-sizing: border-box;
 }
 
-.login-button {
-  cursor: pointer;
-  border: none;
-  background-color: #033d92;
-  color: white;
+.auth-toggle {
+  margin-bottom: 16px;
+  border-bottom: 2px solid #ddd;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
+.auth-toggle button {
+  padding: 8px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.auth-toggle button:hover {
+  border-color: #3498db;
+}
+
+.auth-toggle button.active {
+  border-color: #3498db;
+  font-weight: bold;
+  color: #2980b9;
+}
+
+/* form 내부 세로 정렬 + form 너비 100% */
+.auth-box form {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* form이 auth-box 전체 너비 차지 */
+  max-width: 320px; /* 최대 너비 제한 (원하면 조절) */
+  gap: 16px; /* input과 버튼 사이 간격 */
+}
+
+/* input, select 모두 너비 100%, 박스 중앙 정렬 */
 .login-input {
+  width: 100%;
+  padding: 12px;
   border: 1px solid #ccc;
-  margin-bottom: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  border-color: #033d92;
+  box-shadow: 0 0 4px rgba(3, 61, 146, 0.3);
+  outline: none;
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #033d92;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.login-button:hover {
+  background-color: #022d6b;
 }
 
 .item-list {

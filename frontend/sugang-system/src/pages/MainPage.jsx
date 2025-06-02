@@ -1,40 +1,71 @@
 import React, { useEffect, useState } from "react";
 import "./MainPage.css";
 import pnuLogo from "../assets/pnu-logo.png";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function MainPage() {
-  // 사용자 정보를 저장할 상태
+  // 사용자 정보 저장
+  const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
+
+  //서버시간
   const [serverDate, setServerDate] = useState("");
   const [serverTime, setServerTime] = useState("");
 
   // 컴포넌트가 마운트될 때 사용자 정보 가져오기
   useEffect(() => {
-    // 로컬 스토리지에서 사용자 정보 가져오기
-    const storedUser = localStorage.getItem("user");
-
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setUser(user); // 사용자 정보 상태 설정
-      } catch (error) {
-        console.error("Invalid user data in localStorage", error);
-      }
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      setAccessToken(token);
     }
+  }, []);
 
-    // 서버 시간을 실시간으로 가져오는 코드
-    const fetchServerTime = async () => {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!accessToken) return;
+
       try {
         const response = await fetch(
-          "http://localhost:5000/api/getServerTime" // API URL 수정
+          `${process.env.REACT_APP_API_BASE_URL}/api/profile`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
         );
 
-        // 응답 상태 확인
         if (response.ok) {
           const data = await response.json();
-          console.log("서버 응답 데이터:", data); // 응답 데이터 확인
-          setServerDate(data.date); // 서버 날짜 상태에 설정
-          setServerTime(data.time); // 서버 시간 상태에 설정
+          setUser(data);
+        } else {
+          console.error("프로필 불러오기 실패", response.status);
+        }
+      } catch (err) {
+        console.error("프로필 요청 에러", err);
+      }
+    };
+
+    fetchProfile();
+  }, [accessToken]);
+
+  useEffect(() => {
+    // 서버 시간을 실시간으로 가져오는 코드 (POST 요청)
+    const fetchServerTime = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/getServerTime`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}), // 빈 body (요청 파라미터 없음)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("서버 응답 데이터:", data);
+          setServerDate(data.date);
+          setServerTime(data.time);
         } else {
           console.error("서버 응답 실패:", response.status);
         }
@@ -43,20 +74,17 @@ export default function MainPage() {
       }
     };
 
-    // 서버 시간 호출 (1초마다 자동 호출되도록 설정)
     fetchServerTime();
     const interval = setInterval(fetchServerTime, 1000);
 
-    // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(interval);
   }, []);
 
   const handleLogout = () => {
-    // localStorage에서 사용자 정보 삭제
-    localStorage.removeItem("user");
-
-    // 로그아웃 후 로그인 페이지로 리디렉션
-    window.location.href = "/login"; // 또는 history.push("/login") (React Router를 사용한다면)
+    // 로컬 스토리지에서 모든 인증 관련 정보 제거
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token_type");
+    window.location.href = "/login";
   };
 
   return (
@@ -75,8 +103,8 @@ export default function MainPage() {
         </div>
         <div className="nav-right">
           <div className="nav-item">
-            {serverDate}&nbsp;
-            {serverTime}
+            {serverDate ? `${serverDate}` : "날짜 로딩 중"}&nbsp;
+            {serverTime ? `${serverTime.slice(0, 8)}` : "시간 로딩 중"}
           </div>
           <div className="nav-item">
             <button onClick={handleLogout} className="logout-button">
@@ -94,23 +122,23 @@ export default function MainPage() {
           <div className="user-info">
             <div className="user-header">
               <h2>
-                {user.name}({user.id})
+                {user.username} ({user.id})
               </h2>
-              <p>
-                {user.department}·{user.major}·{user.year}·{user.degree}
-              </p>
+              <p>{user.email}</p>
             </div>
+
             <div className="semester-info">
               <h2>2025학년도 여름계절/도약</h2>
               <h3>수강신청(학부)</h3>
             </div>
+
             <div className="credit-info">
               <div className="credit-item">
-                <strong>취득학점</strong> <span>{user.earnedCredits}</span>
+                <strong>역할</strong> <span>{user.role}</span>
               </div>
               <div className="credit-item">
-                <strong>수강신청가능학점</strong>{" "}
-                <span>{user.availableCredits}</span>
+                <strong>계정상태</strong>{" "}
+                <span>{user.is_active ? "활성" : "비활성"}</span>
               </div>
             </div>
           </div>

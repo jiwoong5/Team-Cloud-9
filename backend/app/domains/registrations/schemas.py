@@ -4,12 +4,10 @@ from pydantic import BaseModel, ConfigDict
 
 
 class RegisterCreate(BaseModel):
-    user_id: int
     course_id: int
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "user_id": 7,
                 "course_id": 1
             }
         }

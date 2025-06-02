@@ -1,70 +1,96 @@
-# Getting Started with Create React App
+🎓 MyCourseRegistrationApp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React를 기본으로 한 대학 수강신청 시스템 프론트엔드입니다.
 
-## Available Scripts
+대학 관리자 및 학생을 위한 수강 신청 및 관리 인터픽스 제공
 
-In the project directory, you can run:
+🖼️ 스크린샷
+![Login Page](./screenshots/login_page.png)
+![Student Page](./screenshots/student_page.png)
+![Professor Page](./screenshots/professor_page.png)
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+🛠️ 사용 기술 스탭
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+⚛️ React 18
 
-### `npm run build`
+🧽 React Router
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+📦 Vite
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+🎨 CSS Modules
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+📁 폴더 구조.
+├── README.md
+├── package-lock.json
+├── package.json
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── screenshots
+│   ├── login_page.png
+│   ├── professor_page.png
+│   └── student_page.png
+├── src
+│   ├── App.css
+│   ├── App.js
+│   ├── App.test.js
+│   ├── assets
+│   │   └── pnu-logo.png
+│   ├── index.css
+│   ├── index.js
+│   ├── pages
+│   │   ├── AdminPage.css
+│   │   ├── AdminPage.jsx
+│   │   ├── LoginPage.css
+│   │   ├── LoginPage.jsx
+│   │   ├── MainPage.css
+│   │   ├── MainPage.jsx
+│   │   ├── RegisterPage.css
+│   │   ├── RegisterPage.jsx
+│   │   ├── SystemAdminPage.css
+│   │   └── SystemAdminPage.jsx
+│   ├── reportWebVitals.js
+│   └── setupTests.js
+└── structure.txt
+```
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+⚙️ 설치 및 실행
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# 1. 저장소 클론
+git clone https://github.com/jiwoong5/Team-Cloud-9.git
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# 2. 디렉토리 이동
+cd frontend/sugang-system
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# 3. 의연성 설치
+npm install
 
-## Learn More
+# 4. 개발 서버 실행
+npm start
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+🌐 환경 변수 설정
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+.env 파일을 프로젝트 루트에 생성하고 다음과 같이 작성합니다:
 
-### Code Splitting
+REACT_APP_API_BASE_URL=https://your-api-server.com
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+🧪 현재 이슈
 
-### Analyzing the Bundle Size
+📱 반응형 디자인 미혜택 → 추후 Tailwind / MUI 도입 예정
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+♻️ 중복 코드 존재 → 공통 코드 구 예정
 
-### Making a Progressive Web App
+📟 라이선스
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+MIT License © 2025 Team Cloud 9
 
-### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
