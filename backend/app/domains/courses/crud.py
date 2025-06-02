@@ -50,10 +50,7 @@ def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
         .where(Register.course_id == course_id)
     )
     user_list = db.exec(stmt).all()
-    student_list = []
-    for user in user_list:
-        student = (UserRead.model_validate(user))
-        student_list.append(student)
+    student_list = [UserRead.model_validate(user) for user in user_list]
     return student_list
 
 
