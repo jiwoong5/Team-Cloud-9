@@ -91,15 +91,104 @@ flowchart TD
 ---
 ## 설치 및 실행 방법
 
-### 1. 클러스터 구성
+### 단일 환경 테스트
+🐳 전체 실행 방법 (Docker 기반)
+1. 저장소 클론
+```bash
+git clone https://github.com/사용자/프로젝트.git
+cd 프로젝트
+```
+2. .env 파일 설정
+루트 디렉토리에 .env 파일을 생성하고 다음과 같이 작성하세요:
 
-- K3s 설치 및 3대 노드 (1 Master + 2 Worker) 구성  
+```env
+# backend 환경 변수
+DATABASE_URL=mysql+pymysql://root:비밀번호@db:3306/your_db
+SECRET_KEY=랜덤한_비밀키
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+.env 파일은 민감 정보이므로 .gitignore에 추가하고 다음 명령어로 Git 추적에서 제거하세요:
+```
+```bash
+echo ".env" >> .gitignore
+git rm --cached .env
+git add .gitignore
+git commit -m "chore: ignore .env file"
+git push
+```
+3. Docker 환경 구성
+docker-compose.yml 파일을 루트 디렉토리에 생성하고 아래 내용을 추가합니다:
+
+```yaml
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 비밀번호
+      MYSQL_DATABASE: your_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend-app
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend/sugang-system
+    container_name: frontend-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:8000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+```
+4. 실행
+```bash
+docker-compose up --build
+프론트엔드: http://localhost:3000
+백엔드 API: http://localhost:8000
+```
+5. 종료
+```bash
+docker-compose down
+```
+📝 참고 사항
+프론트엔드는 REACT_APP_API_BASE_URL 환경 변수로 백엔드와 통신합니다.
+
+백엔드는 애플리케이션 시작 시 SQLModel을 기반으로 테이블을 자동 생성합니다.
+
+uv를 사용하는 로컬 개발은 선택이며, 운영에서는 Docker로 실행하세요.
+
+---
+### 다중 환경 테스트
+1. K3s 설치 및 3대 노드 (1 Master + 2 Worker) 구성  
   ```bash
   curl -sfL https://get.k3s.io | sh -
   ```
   워커 노드에서는 join 토큰을 사용해 클러스터에 연결
 
-## 2. FastAPI 서버 빌드 및 컨테이너 이미지 생성
+2. FastAPI 서버 빌드 및 컨테이너 이미지 생성
 
 - 프로젝트 루트에서 Docker 이미지 빌드
 
@@ -108,7 +197,7 @@ flowchart TD
   ```
   이미지 레지스트리에 푸시하거나 직접 노드에 배포
 
-## 3. Kubernetes 리소스 배포
+3. Kubernetes 리소스 배포
   ```bash
   kubectl create namespace sugang
   kubectl apply -f k8s/mysql.yaml -n sugang
@@ -117,21 +206,21 @@ flowchart TD
   kubectl apply -f k8s/prometheus.yaml -n sugang
   kubectl apply -f k8s/grafana.yaml -n sugang
   ```
-## 4. 서비스 접속
+4. 서비스 접속
   클러스터 IP 또는 로컬 네트워크 내 노드 IP와 Ingress 설정에 따라 웹 UI 및 API 접속 가능
   관리자 대시보드에서 실시간 Pod 수, CPU 사용률, 부하 분산 현황 확인 가능
-
-## 활용 방안
-교육용 Kubernetes 실습 환경
+---
+### 활용 방안
+1. 교육용 Kubernetes 실습 환경
 다중 노드 클러스터에서 오토스케일링, 부하 분산, 모니터링 기능을 직접 체험할 수 있습니다.
 
-수강신청 서비스 개선 연구
+2. 수강신청 서비스 개선 연구
 실제 대학 환경에 적용 가능한 자동 확장 기반 수강신청 시스템 설계 및 운영 방안을 검증할 수 있습니다.
 
-부하 테스트 및 시스템 안정성 평가
+3. 부하 테스트 및 시스템 안정성 평가
 급격한 트래픽 변화에 따른 시스템 반응과 확장성, 장애 대응 시나리오를 시연할 수 있습니다.
 
-확장 가능한 웹 서비스 배포 예시
+4. 확장 가능한 웹 서비스 배포 예시
 FastAPI + K3s 기반 컨테이너 배포 및 관리 실무 가이드로 활용 가능합니다.
 ---
 🚀 개발 결과물 활용 방안
