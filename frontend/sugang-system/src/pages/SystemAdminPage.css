@@ -76,131 +76,58 @@
   color: #2980b9;
 }
 
-/* --- 모니터링 섹션 --- */
-/* 모니터링 섹션 공통 스타일 */
+/* === 모니터링 공통 스타일 === */
 .monitoring-section {
-  width: 100%;
-  max-width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
+  padding: 1rem;
 }
 
 .section-title {
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
 }
 
-/* 탭 컨트롤 스타일 */
 .monitoring-tabs {
   display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .monitoring-tab {
-  padding: 10px 20px;
+  padding: 0.5rem 1rem;
+  background-color: #eaeaea;
+  border-radius: 8px;
   cursor: pointer;
-  background: #eee;
-  border: 1px solid #ddd;
-  border-bottom: none;
-  border-radius: 5px 5px 0 0;
-  margin-right: 5px;
-  transition: all 0.3s;
+  transition: background-color 0.2s ease;
+}
+
+.monitoring-tab:hover {
+  background-color: #dcdcdc;
 }
 
 .monitoring-tab.active {
-  background: #fff;
-  border-color: #3498db;
-  color: #3498db;
-  font-weight: bold;
-  margin-bottom: -1px;
+  background-color: #007bff;
+  color: white;
 }
 
-/* 서브섹션 (페이지) 스타일 */
-.monitoring-subsection {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.monitoring-section-subsection {
+  margin-bottom: 2rem;
 }
 
-/* 백엔드/프론트엔드 공통 그리드 레이아웃 */
-.monitoring-section-backend,
-.monitoring-section-frontend {
-  width: 100%;
-  display: grid;
-  gap: 20px;
+.monitoring-section-subsection h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
-/* 백엔드 전용 레이아웃 */
-.monitoring-section-backend {
-  grid-template-areas:
-    "cpu cpu"
-    "memory memory"
-    "transmit receive";
-}
-
-.monitoring-section iframe {
-  width: 100% !important;
-  height: auto;
-  aspect-ratio: 16/9; /* 기본 비율 (필요시 조정) */
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-}
-
-.monitoring-section-backend iframe[width="640"] {
-  grid-area: cpu;
-  width: 100%;
-  height: 360px;
-}
-
-.monitoring-section-backend iframe[width="320"] {
-  width: 100%;
-  height: 180px;
-}
-
-.monitoring-section-backend iframe[src*="panelId=4"] {
-  grid-area: transmit;
-}
-
-.monitoring-section-backend iframe[src*="panelId=5"] {
-  grid-area: receive;
-}
-
-/* 프론트엔드 전용 레이아웃 */
-.monitoring-section-frontend {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.monitoring-section-frontend h3 {
-  grid-column: span 2;
-}
-
-.monitoring-section-frontend iframe {
-  width: 100%;
-  height: 180px;
-}
-
-/* 페이지 전환 효과 */
-.monitoring-page {
-  display: none;
-}
-
-.monitoring-page.active {
+.monitoring-section-subsection iframe {
   display: block;
-  animation: fadeIn 0.5s;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 100%; /* 여기서 너비 증가 */
+  height: 540px; /* 비율 맞추어 높이도 증가 (16:9 기준) */
 }
 
 /* --- 스케일링 섹션 --- */
