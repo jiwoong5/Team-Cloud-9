@@ -155,36 +155,48 @@ const SystemAdminPage = () => {
       setMessage(`에러 발생: ${err.message}`);
     }
   };
-
   const handleLoadTest = async () => {
-    if (!deploymentName) {
-      setMessage("Deployment 이름을 입력해주세요.");
+    // duration 유효성 검사
+    if (!duration || duration <= 0) {
+      const msg = "유효한 CPU 부하 지속 시간을 입력해주세요.";
+      setMessage(msg);
+      alert(msg);
       return;
     }
 
-    setMessage("CPU 부하 테스트 실행 중...");
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/hpa/loadtest`, {
+      const formData = new URLSearchParams();
+      formData.append("duration", duration.toString());
+
+      const response = await fetch(`${API_BASE_URL}/api/load`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
-          deploymentName,
-          duration, // CPU 부하 지속 시간
-        }),
+        body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setMessage(`CPU 부하 테스트 완료: ${data.result || "성공"}`);
+      if (response.status === 204) {
+        const msg = "CPU 부하 테스트가 성공적으로 완료되었습니다.";
+        setMessage(msg);
+        alert(msg);
+      } else if (response.status === 422) {
+        const msg =
+          "❌ 테스트 실패: 요청 파라미터가 올바르지 않습니다. duration 값을 확인해주세요.";
+        setMessage(msg);
+        alert(msg);
       } else {
         const errorText = await response.text();
-        setMessage(`테스트 실패: ${errorText}`);
+        const msg = `❌ 테스트 실패 (${response.status}): ${
+          errorText || "알 수 없는 오류"
+        }`;
+        setMessage(msg);
+        alert(msg);
       }
     } catch (error) {
-      setMessage(`에러 발생: ${error.message}`);
+      const msg = `🚫 에러 발생: ${error.message}`;
+      setMessage(msg);
+      alert(msg);
     }
   };
 
@@ -269,15 +281,6 @@ const SystemAdminPage = () => {
       {activeTab === "system-test" && (
         <div className="system-test-section">
           <h2>CPU 부하 테스트</h2>
-
-          <label htmlFor="deploymentName">Deployment 이름</label>
-          <input
-            id="deploymentName"
-            type="text"
-            value={deploymentName}
-            onChange={(e) => setDeploymentName(e.target.value)}
-            className="input-deployment-name"
-          />
 
           <label htmlFor="duration">CPU 부하 지속 시간 (초)</label>
           <input
