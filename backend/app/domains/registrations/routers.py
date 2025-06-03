@@ -4,7 +4,7 @@ from sqlmodel import Session
 from app.db.session import get_db
 from . import crud, schemas
 from ..users.models import User
-from ...core.security import get_current_user
+from ...domains.users.routers import get_current_user
 
 router = APIRouter(
     prefix="/registrations",
@@ -17,13 +17,14 @@ router = APIRouter(
 @router.post("", response_model=schemas.RegisterRead, status_code=status.HTTP_201_CREATED)
 async def register(enroll_in: schemas.RegisterCreate, current_user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    return crud.register_student(db, enroll_in, current_user)
+    registration = await crud.register_student(db, enroll_in, current_user)
+    return registration
 
 
 # 자신이 수강 신청한 과목 조회
 @router.get("", response_model=list[schemas.RegisterRead])
 async def read_student_register(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    reg = crud.get_student_register(db, current_user)
+    reg = await crud.get_student_register(db, current_user)
     return reg
 
 
@@ -31,13 +32,14 @@ async def read_student_register(db: Session = Depends(get_db), current_user: Use
 @router.get("/summary", response_model=schemas.SummarizedRegisterRead)
 async def retrieve_summarized_registration(db: Session = Depends(get_db),
                                            current_user: User = Depends(get_current_user)):
-    return crud.get_summarized_registrations(db, current_user)
+    registrations = await crud.get_summarized_registrations(db, current_user)
+    return registrations
 
 
 # 수강 신청 삭제
 @router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def unregister(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    success = crud.delete_register(db, course_id, current_user)
+    success = await crud.delete_register(db, course_id, current_user)
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
 
@@ -45,7 +47,7 @@ async def unregister(course_id: int, db: Session = Depends(get_db), current_user
 # 해당 강의에 수강 신청 정보 조회
 @router.get("/{course_id}", response_model=list[schemas.RegisterRead])
 async def read_register(course_id: int, db: Session = Depends(get_db)):
-    reg = crud.get_register(db, course_id)
+    reg = await crud.get_register(db, course_id)
     if not reg:
         raise HTTPException(status_code=404, detail="Register not found")
     return reg

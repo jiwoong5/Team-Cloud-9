@@ -23,10 +23,11 @@ async def get_registers(db: Session, user_id: int | None = None):
 async def register_student(db: Session, register_in: RegisterCreate, current_user: User) -> Register:
     register = Register(user_id=current_user.id, course_id=register_in.course_id)
     course_id = register.course_id
-    course = course_crud.get_course(db, course_id)
+    course = await course_crud.get_course(db, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course Not found")
-    if check_user_registered(db, register.user_id, course_id):
+    registered = await check_user_registered(db, register.user_id, course_id)
+    if registered:
         raise HTTPException(status_code=400, detail="Already Registered in the course")
     if course.enrolled >= course.capacity:
         raise HTTPException(status_code=400, detail="Already Fulled Course")

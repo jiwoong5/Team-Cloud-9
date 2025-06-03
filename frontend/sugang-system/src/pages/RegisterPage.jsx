@@ -32,6 +32,9 @@ export default function RegisterPage() {
     remainingCredits: 0.0,
   });
 
+  // 수강생 수 정보를 저장할 상태 추가
+  const [enrollmentCounts, setEnrollmentCounts] = useState({});
+
   useEffect(() => {
     // 서버 시간을 실시간으로 가져오는 코드 (POST 요청)
     const fetchServerTime = async () => {
@@ -95,6 +98,53 @@ export default function RegisterPage() {
 
     fetchProfile();
   }, [accessToken]);
+
+  // 특정 강의의 수강생 수를 조회하는 함수
+  const fetchEnrollmentCount = async (courseId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) return 0;
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/courses/${courseId}/students`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const students = await response.json();
+        return Array.isArray(students) ? students.length : 0;
+      } else {
+        console.error(
+          `수강생 조회 실패 for course ${courseId}:`,
+          response.status
+        );
+        return 0;
+      }
+    } catch (error) {
+      console.error(`수강생 조회 에러 for course ${courseId}:`, error);
+      return 0;
+    }
+  };
+
+  // 여러 강의의 수강생 수를 일괄 조회하는 함수
+  const fetchAllEnrollmentCounts = async (courseIds) => {
+    const counts = {};
+
+    // 병렬로 모든 강의의 수강생 수 조회
+    const promises = courseIds.map(async (courseId) => {
+      const count = await fetchEnrollmentCount(courseId);
+      counts[courseId] = count;
+      return { courseId, count };
+    });
+
+    await Promise.all(promises);
+    setEnrollmentCounts((prev) => ({ ...prev, ...counts }));
+  };
 
   // summary 가져오기 함수
   const fetchSummary = useCallback(async () => {
@@ -226,6 +276,12 @@ export default function RegisterPage() {
       console.log("Setting registered courses to state:", validCourses);
 
       setRegisteredCourses(validCourses);
+
+      // 등록된 강의들의 수강생 수 조회
+      const courseIds = validCourses.map((course) => course.id);
+      if (courseIds.length > 0) {
+        await fetchAllEnrollmentCounts(courseIds);
+      }
     } catch (error) {
       console.error("Error in fetchRegisteredCourses:", error);
       setErrorRegistered(error.message);
@@ -593,7 +649,11 @@ export default function RegisterPage() {
                       <td>{course.course_code}</td>
                       <td>{course.credits}</td>
                       <td>{course.capacity}</td>
-                      <td>{course.enrolled}</td>
+                      <td>
+                        {enrollmentCounts[course.id] !== undefined
+                          ? enrollmentCounts[course.id]
+                          : course.enrolled}
+                      </td>
                       <td>{course.days_of_week}</td>
                       <td>
                         {course.start_time} - {course.end_time}
