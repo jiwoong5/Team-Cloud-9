@@ -1,0 +1,82 @@
+# -----------------------------
+# 1) Python 관련
+# -----------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C 확장 모듈 빌드 결과물 (빌드 시 생성되는 폴더/파일)
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# pipenv, poetry 가상 환경
+# (이미 .venv 이름을 사용 중이라면 다음 줄로 충분합니다)
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# pytest .cache (테스트 캐시)
+.pytest_cache/
+
+# Mypy 캐시
+.mypy_cache/
+
+# ccache (C/C++ 빌드 캐시)
+ccache/
+
+# -----------------------------
+# 2) IDE/에디터 관련
+# -----------------------------
+# PyCharm
+.idea/
+
+# 기타 OS별 메타 파일
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# 3) 환경 변수 파일 / 시크릿 토큰
+# -----------------------------
+# 로컬 개발 시 사용하는 .env 파일은 절대 커밋하지 않습니다.
+.env
+
+# 만약 여러 .env.* 파일을 함께 관리한다면, 그 예시도 제외
+.env.*
+!.env.example                # 단, 예시 파일(.env.example)은 추적해도 좋으므로 !로 제외 대상에서 해제
+
+# -----------------------------
+# 4) 로컬 실행 로그 / 잠금 파일
+# -----------------------------
+# Uvicorn / Gunicorn 로그 등
+*.log
+
+# Poetry 잠금 파일(보통은 포함하지만, 원한다면 제외)
+# poetry.lock
+
+# pipenv 잠금 파일
+# Pipfile.lock
+
+# pyenv 가상환경 관리를 위한 파일
+.python-version
+
+# -----------------------------
+# 5) 비공개 포스트맨/HTTP 요청 예시 파일
+# -----------------------------
+# test_main.http 혹은 다른 개인 테스트 스크립트
+*.http

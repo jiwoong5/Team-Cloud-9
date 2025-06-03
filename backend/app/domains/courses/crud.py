@@ -1,25 +1,23 @@
 from typing import List
 
 from fastapi import HTTPException
-from fastapi_pagination import paginate
+from fastapi_pagination import paginate, Params
 from fastapi_pagination.ext.sqlmodel import paginate
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 
 from app.domains.courses.models import Course
 from app.domains.courses.schemas import CourseCreate, CourseRead
-from app.domains.professors.models import Professor
-from app.domains.registrations.crud import delete_registrations_by_course_id
 from app.domains.registrations.models import Register
-from app.domains.students.models import Student
 from app.domains.users.models import User, UserRole
+from app.domains.users.schemas import UserRead
 
 
-def get_courses(db: Session) -> list[Course]:
-    return paginate(db, select(Course))
+def get_courses_with_pagination(db: Session, params: Params) -> list[Course]:
+    return paginate(db, select(Course), params=params)
 
 
 def create_course(db: Session, course_in: CourseCreate, current_user: User) -> Course:
-    if current_user.role != UserRole.PROFESSOR:
+    if current_user.role not in {UserRole.PROFESSOR, UserRole.ADMIN}:
         raise HTTPException(status_code=403, detail="Only Allowed to Admin User")
     course = Course(**course_in.dict())
     stmt = select(Course).where(Course.name == course.name, Course.course_code == course.course_code)
@@ -33,7 +31,6 @@ def create_course(db: Session, course_in: CourseCreate, current_user: User) -> C
     return course
 
 
-
 def get_courses_by_department(db: Session, department_id: int) -> list[Course]:
     stmt = select(Course).where(Course.department_id == department_id)
     return db.exec(stmt).all()
@@ -44,20 +41,27 @@ def get_course(db: Session, course_id: int) -> Course | None:
     return db.exec(stmt).first()
 
 
-def get_students_by_course(db: Session, course_id: int) -> List[Student]:
+def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
+    if get_course(db, course_id) is None:
+        raise HTTPException(status_code=404, detail=f"Not found Course with ID {course_id}")
     stmt = (
-        select(Student)
-        .join(Register, Register.user_id == Student.id)
+        select(User)
+        .join(Register, Register.user_id == User.id)
         .where(Register.course_id == course_id)
     )
-    return db.exec(stmt).all()
+    user_list = db.exec(stmt).all()
+    student_list = [UserRead.model_validate(user) for user in user_list]
+    return student_list
 
 
 def delete_course(db: Session, course: Course, current_user: User):
-    deleted_registrations = delete_registrations_by_course_id(db, course.id, current_user)
+    if current_user.role not in (UserRole.PROFESSOR, UserRole.ADMIN):
+        raise HTTPException(status_code=403, detail="Only Allowed for Admin or Professor")
+
+    delete_stmt = delete(Register).where(Register.course_id == course.id)
+    db.exec(delete_stmt)
     db.delete(course)
     db.commit()
-    return None
 
 
 def get_courses_by_professor(db: Session, current_user: User) -> List[CourseRead]:

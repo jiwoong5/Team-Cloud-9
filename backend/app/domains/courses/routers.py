@@ -1,26 +1,27 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Security
-from fastapi_pagination import Page, add_pagination
+from fastapi_pagination import Page, add_pagination, Params
 from sqlalchemy.orm import Session
 from starlette import status
 
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.domains.courses import schemas, crud
-from app.domains.students.schemas import StudentRead
 from app.domains.users.models import User
+from app.domains.users.schemas import UserRead
 
 router = APIRouter(tags=["courses"],
                    prefix="/admin/courses",
                    dependencies=[Security(get_current_user, scopes=[])])
 
 
-
 # 전체 강의 리스트 (페이지네이션)
-@router.get("/", response_model=Page[schemas.CourseRead])
-def read_courses(db: Session = Depends(get_db)):
-    return crud.get_courses(db)
+@router.get("", response_model=Page[schemas.CourseRead])
+def read_courses(db: Session = Depends(get_db),
+                 prams: Params = Depends()):
+    return crud.get_courses_with_pagination(db,prams)
+
 
 add_pagination(router)
 
@@ -41,7 +42,8 @@ def add_course(
 @router.get("/professor", response_model=list[schemas.CourseRead])
 def get_courses_by_professor(db: Session = Depends(get_db),
                              current_user: User = Depends(get_current_user)):
-    return crud.get_courses_by_professor(db,current_user)
+    return crud.get_courses_by_professor(db, current_user)
+
 
 # 해당 학부 강의 리스트
 @router.get("/department/{department_id}", response_model=List[schemas.CourseRead])
@@ -50,7 +52,7 @@ def read_course_by_department(department_id: int, db: Session = Depends(get_db))
 
 
 # 해당 강의의 수강 학생 리스트
-@router.get("/{course_id}/students", response_model=List[StudentRead])
+@router.get("/{course_id}/students", response_model=List[UserRead])
 def read_students_by_course(course_id: int, db: Session = Depends(get_db)):
     return crud.get_students_by_course(db, course_id)
 
@@ -93,11 +95,3 @@ def delete_course(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     crud.delete_course(db, course, current_user)
-
-
-@router.get("/{course_id}", response_model=schemas.CourseRead)
-def read_course(course_id: int, db: Session = Depends(get_db)):
-    course = crud.get_course(db, course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-    return course

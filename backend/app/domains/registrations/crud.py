@@ -21,15 +21,15 @@ def get_registers(db: Session, user_id: int | None = None):
 
 
 def register_student(db: Session, register_in: RegisterCreate, current_user: User) -> Register:
-    register = Register(**register_in.dict())
-    register.user_id = current_user.id
+    register = Register(user_id=current_user.id, course_id=register_in.course_id)
     course_id = register.course_id
     course = course_crud.get_course(db, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course Not found")
     if check_user_registered(db, register.user_id, course_id):
         raise HTTPException(status_code=400, detail="Already Registered in the course")
-
+    if course.enrolled >= course.capacity:
+        raise HTTPException(status_code=400, detail="Already Fulled Course")
     db.add(register)
     db.commit()
     db.refresh(register)
@@ -66,7 +66,7 @@ def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
 
 
 def delete_registrations_by_course_id(db: Session, course_id: int, current_user: User):
-    if current_user.role != UserRole.PROFESSOR:
+    if current_user.role not in {UserRole.ADMIN, UserRole.PROFESSOR}:
         return HTTPException(status_code=403, detail="Only Allowed to Admin User")
     stmt = select(Register).where(Register.course_id == course_id)
     register = db.exec(stmt).all()
