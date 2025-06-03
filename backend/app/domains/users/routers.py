@@ -72,16 +72,17 @@ async def register(
         session: Session = Depends(get_db)):
     try:
         user_crud = UserCRUD(session)
-
+        existing_user = await user_crud.get_user_by_username(user_data.username)
         # Check existing user
-        if user_crud.get_user_by_username(user_data.username):
+        if existing_user:
             raise HTTPException(status_code=400, detail="Username already exists")
 
-        if user_crud.get_user_by_email(user_data.email):
+        existing_email = await user_crud.get_user_by_email(user_data.email)
+        if existing_email:
             raise HTTPException(status_code=400, detail="Email already exists")
 
         # Create user
-        user = user_crud.create_user(user_data)
+        user = await user_crud.create_user(user_data)
         if not user:
             raise HTTPException(status_code=500, detail="Failed to create user")
 
