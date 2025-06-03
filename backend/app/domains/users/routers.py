@@ -48,7 +48,7 @@ async def get_current_user(
         raise credentials_exception
 
     user_crud = UserCRUD(session)
-    user = user_crud.get_user_by_username(username)
+    user = await user_crud.get_user_by_username(username)
     if user is None:
         raise credentials_exception
     return user
@@ -95,7 +95,7 @@ async def register(
 @router.post("/login", response_model=Token)
 async def login(user_data: UserLogin, session: Session = Depends(get_session)):
     user_crud = UserCRUD(session)
-    user = user_crud.authenticate_user(user_data.username, user_data.password)
+    user = await user_crud.authenticate_user(user_data.username, user_data.password)
 
     if not user:
         raise HTTPException(
@@ -120,7 +120,8 @@ async def get_profile(
         session: Session = Depends(get_session)
 ):
     user_crud = UserCRUD(session)
-    return user_crud.get_user(current_user.id)
+    user = await user_crud.get_user(current_user.id)
+    return user
 
 
 @router.get("/admin/users")

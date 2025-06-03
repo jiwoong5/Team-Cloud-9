@@ -42,7 +42,8 @@ async def get_course(db: Session, course_id: int) -> Course | None:
 
 
 async def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
-    if get_course(db, course_id) is None:
+    course = await get_course(db, course_id)
+    if course is None:
         raise HTTPException(status_code=404, detail=f"Not found Course with ID {course_id}")
     stmt = (
         select(User)
