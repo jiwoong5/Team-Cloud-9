@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y curl build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -16,4 +16,4 @@ RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY app ./app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

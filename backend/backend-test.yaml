@@ -16,7 +16,7 @@ spec:
                 - name: fastapi
                   image: nacho2407/backend-test
                   ports:
-                      - containerPort: 80
+                      - containerPort: 8000
                   envFrom:
                       - configMapRef:
                             name: backend-env
@@ -42,9 +42,9 @@ spec:
     selector:
         app: backend-test
     ports:
-        - port: 80
-          targetPort: 80
-          nodePort: 30080
+        - port: 8000
+          targetPort: 8000
+          nodePort: 38000
 
 ---
 
