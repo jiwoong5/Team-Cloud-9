@@ -248,76 +248,68 @@ const SystemAdminPage = () => {
 
           <div className="monitoring-tabs">
             <div
-              className={`monitoring-tab ${
-                activePage === "backend" ? "active" : ""
-              }`}
+              className={
+                "monitoring-tab " + (activePage === "backend" ? "active" : "")
+              }
               onClick={() => setActivePage("backend")}
             >
               백엔드 모니터링
             </div>
             <div
-              className={`monitoring-tab ${
-                activePage === "frontend" ? "active" : ""
-              }`}
+              className={
+                "monitoring-tab " + (activePage === "frontend" ? "active" : "")
+              }
               onClick={() => setActivePage("frontend")}
             >
               프론트엔드 모니터링
             </div>
           </div>
 
-          <div className="monitoring-subsection">
-            <div
-              className={`monitoring-page ${
-                activePage === "backend" ? "active" : ""
-              }`}
-            >
-              <div className="monitoring-section-backend">
-                <h3>CPU Usage</h3>
-                <iframe
-                  src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo"
-                  width="640"
-                  height="360"
-                  frameBorder="0"
-                ></iframe>
+          {activePage === "backend" && (
+            <div className="monitoring-section-subsection">
+              <h3>CPU Usage</h3>
+              <iframe
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo"
+                width="640"
+                height="360"
+                frameBorder="0"
+              ></iframe>
 
-                <h3>Memory Usage</h3>
-                <iframe
-                  src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=3&__feature.dashboardSceneSolo"
-                  width="640"
-                  height="360"
-                  frameBorder="0"
-                ></iframe>
+              <h3>Memory Usage</h3>
+              <iframe
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=3&__feature.dashboardSceneSolo"
+                width="640"
+                height="360"
+                frameBorder="0"
+              ></iframe>
 
-                <h3>Transmit Bandwidth</h3>
-                <iframe
-                  src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=4&__feature.dashboardSceneSolo"
-                  width="640"
-                  height="360"
-                  frameBorder="0"
-                ></iframe>
+              <h3>Transmit Bandwidth</h3>
+              <iframe
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=4&__feature.dashboardSceneSolo"
+                width="640"
+                height="360"
+                frameBorder="0"
+              ></iframe>
 
-                <h3>Receive Bandwidth</h3>
-                <iframe
-                  src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=5&__feature.dashboardSceneSolo"
-                  width="640"
-                  height="360"
-                  frameBorder="0"
-                ></iframe>
-              </div>
+              <h3>Receive Bandwidth</h3>
+              <iframe
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=5&__feature.dashboardSceneSolo"
+                width="640"
+                height="360"
+                frameBorder="0"
+              ></iframe>
             </div>
+          )}
 
-            <div
-              className={`monitoring-page ${
-                activePage === "frontend" ? "active" : ""
-              }`}
-            >
-              <div className="monitoring-section-frontend">
+          {activePage === "frontend" && (
+            <div className="monitoring-page active">
+              <div className="monitoring-section-subsection">
                 <h3>CPU Usage</h3>
                 <iframe
                   src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=frontend&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo"
                   width="640"
                   height="360"
-                  frameborder="0"
+                  frameBorder="0"
                 ></iframe>
 
                 <h3>Memory Usage</h3>
@@ -325,7 +317,7 @@ const SystemAdminPage = () => {
                   src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=frontend&refresh=10s&theme=light&panelId=3&__feature.dashboardSceneSolo"
                   width="640"
                   height="360"
-                  frameborder="0"
+                  frameBorder="0"
                 ></iframe>
 
                 <h3>Transmit Bandwidth</h3>
@@ -333,7 +325,7 @@ const SystemAdminPage = () => {
                   src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=frontend&refresh=10s&theme=light&panelId=7&__feature.dashboardSceneSolo"
                   width="640"
                   height="360"
-                  frameborder="0"
+                  frameBorder="0"
                 ></iframe>
 
                 <h3>Receive Bandwidth</h3>
@@ -341,11 +333,11 @@ const SystemAdminPage = () => {
                   src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=frontend&refresh=10s&theme=light&panelId=6&__feature.dashboardSceneSolo"
                   width="640"
                   height="360"
-                  frameborder="0"
+                  frameBorder="0"
                 ></iframe>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
