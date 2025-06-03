@@ -1,0 +1,33 @@
+prometheus:
+    prometheusSpec:
+        scrapeInterval: 10s
+        evaluationInterval: 10s
+        nodeSelector:
+            kubernetes.io/hostname: nacho-vm
+
+alertmanager:
+    alertmanagerSpec:
+        nodeSelector:
+            kubernetes.io/hostname: nacho-vm
+
+grafana:
+    adminUser: admin
+    adminPassword: admin
+    nodeSelector:
+        kubernetes.io/hostname: nacho-vm
+    env:
+        GF_SECURITY_ALLOW_EMBEDDING: true
+        GF_SECURITY_COOKIE_SAMESITE: lax
+        GF_SERVER_DOMAIN: nacho2407.duckdns.org
+        GF_SERVER_ROOT_URL: http://nacho2407.duckdns.org:30090/
+        GF_SERVER_SERVE_FROM_SUB_PATH: false
+    grafana.ini:
+        auth.anonymous:
+            enabled: true
+            org_role: Viewer
+        security:
+            allow_embedding: true
+
+global:
+    nodeSelector:
+        kubernetes.io/hostname: nacho-vm
