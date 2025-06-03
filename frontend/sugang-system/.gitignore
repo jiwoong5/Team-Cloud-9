@@ -6,7 +6,7 @@ build/
 dist/
 
 # 환경 설정 파일
-.env
+# .env
 
 # OS 생성된 파일들
 .DS_Store
