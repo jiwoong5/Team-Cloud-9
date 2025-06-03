@@ -95,6 +95,13 @@ export default function AdminPage() {
     window.location.href = "/login";
   };
 
+  // 강의 관리 탭에서 실제 수강생 수 조회
+  useEffect(() => {
+    if (activeTab === "manage" && courses.length > 0 && accessToken) {
+      fetchAllStudentsForManage(accessToken);
+    }
+  }, [activeTab, courses.length, accessToken]);
+
   // 수강생 조회 탭 활성화 시 수강생 정보 로드
   useEffect(() => {
     if (activeTab === "students" && courses.length > 0 && accessToken) {
@@ -244,7 +251,32 @@ export default function AdminPage() {
     }
   };
 
-  // 모든 코스의 수강생 정보를 가져와서 courses 상태를 업데이트하는 함수
+  // 강의 관리 탭용: 실제 수강생 수만 업데이트
+  const fetchAllStudentsForManage = async (accessToken) => {
+    try {
+      // 모든 코스에 대해 수강생 수를 병렬로 가져와서 enrolled 업데이트
+      const coursesWithUpdatedEnrolled = await Promise.all(
+        courses.map(async (course) => {
+          try {
+            const students = await fetchStudents(course.id, accessToken);
+            return {
+              ...course,
+              enrolled: students ? students.length : 0, // 실제 수강생 수로 업데이트
+            };
+          } catch (error) {
+            console.error(`코스 ${course.id} 수강생 수 조회 실패:`, error);
+            return course; // 실패 시 원본 데이터 유지
+          }
+        })
+      );
+
+      setCourses(coursesWithUpdatedEnrolled);
+    } catch (error) {
+      console.error("수강생 수 업데이트 실패:", error);
+    }
+  };
+
+  // 수강생 조회 탭용: 모든 코스의 수강생 정보를 가져와서 courses 상태를 업데이트하는 함수
   const fetchAllStudents = async (accessToken) => {
     setLoading(true);
     try {
@@ -256,12 +288,14 @@ export default function AdminPage() {
             return {
               ...course,
               students: students || [],
+              enrolled: students ? students.length : 0, // 실제 수강생 수로 업데이트
             };
           } catch (error) {
             console.error(`코스 ${course.id} 수강생 조회 실패:`, error);
             return {
               ...course,
               students: [],
+              enrolled: 0,
             };
           }
         })
@@ -284,7 +318,11 @@ export default function AdminPage() {
       setCourses((prevCourses) =>
         prevCourses.map((course) =>
           course.id === courseId
-            ? { ...course, students: students || [] }
+            ? {
+                ...course,
+                students: students || [],
+                enrolled: students ? students.length : 0, // 실제 수강생 수로 업데이트
+              }
             : course
         )
       );
