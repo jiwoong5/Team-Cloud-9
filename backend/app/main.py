@@ -31,7 +31,7 @@ app.include_router(loadtest_router, prefix="/api")
 # 프론트엔드 요청 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://nacho2407.duckdns.org"],
+    allow_origins=["http://nacho2407.duckdns.org","http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
