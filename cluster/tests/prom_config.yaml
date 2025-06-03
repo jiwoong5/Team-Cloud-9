@@ -27,6 +27,12 @@ grafana:
             org_role: Viewer
         security:
             allow_embedding: true
+    persistence:
+        enabled: true
+        accessModes:
+            - ReadWriteOnce
+        size: 1Gi
+        storageClassName: standard
 
 global:
     nodeSelector:
