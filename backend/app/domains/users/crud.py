@@ -27,7 +27,7 @@ class UserCRUD:
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
 
-    def create_user(self, user_data: UserCreate) -> Optional[User]:
+    async def create_user(self, user_data: UserCreate) -> Optional[User]:
         try:
             hashed_password = self.get_password_hash(user_data.password)
             user = User(
@@ -45,7 +45,7 @@ class UserCRUD:
             self.session.rollback()
             return None
 
-    def create_student_profile(self, user: User, student_data: StudentCreate) -> Optional[Student]:
+    async def create_student_profile(self, user: User, student_data: StudentCreate) -> Optional[Student]:
         try:
             student = Student(
                 user_id=user.id,
@@ -61,23 +61,23 @@ class UserCRUD:
             self.session.rollback()
             return None
 
-    def get_user_by_username(self, username: str) -> User | None:
+    async def get_user_by_username(self, username: str) -> User | None:
         statement = select(User).where(User.username == username)
         user = self.session.exec(statement).first()
         return user
 
-    def get_user_by_email(self, email: EmailStr) -> Optional[User]:
+    async def get_user_by_email(self, email: EmailStr) -> Optional[User]:
         statement = select(User).where(User.email == email)
         return self.session.exec(statement).first()
 
-    def get_user(self, user_id: int) -> Optional[UserResponse]:
+    async def get_user(self, user_id: int) -> Optional[UserResponse]:
         statement = select(User).where(User.id == user_id)
         user = self.session.exec(statement).first()
         if user is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {user_id}")
         return UserResponse.model_validate(user)
 
-    def authenticate_user(self, username: str, password: str) -> Optional[User]:
+    async def authenticate_user(self, username: str, password: str) -> Optional[User]:
         user = self.get_user_by_username(username)
         if not user or not self.verify_password(password, user.hashed_password):
             return None
