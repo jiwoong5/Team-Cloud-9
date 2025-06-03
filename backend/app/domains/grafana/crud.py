@@ -5,7 +5,7 @@ import psutil
 log = logging.getLogger('uvicorn')
 
 
-def get_cpu(interval: float = 1.0):
+async def get_cpu(interval: float = 1.0):
     log.info(f"First Call = {psutil.cpu_percent(interval=None)}")
     cpu_pct = psutil.cpu_percent(interval=interval)
     log.info(f"[{interval:.1f}s 동안] 전체 CPU 사용률: {cpu_pct}%")
@@ -13,7 +13,7 @@ def get_cpu(interval: float = 1.0):
     for idx, pct in enumerate(per_cpu):
         log.info(f"코어 {idx} 사용률: {pct}%")
 
-def get_memory():
+async def get_memory():
     virtual_memory = psutil.virtual_memory()
     log.info("=== 물리 메모리 (RAM) ===")
     log.info(f"전체: {virtual_memory.total / (1024 ** 3):.2f} GB")
