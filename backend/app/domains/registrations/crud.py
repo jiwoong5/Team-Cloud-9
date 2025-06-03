@@ -13,14 +13,14 @@ from ..users.models import User, UserRole
 logger = logging.getLogger('uvicorn.error')
 
 
-def get_registers(db: Session, user_id: int | None = None):
+async def get_registers(db: Session, user_id: int | None = None):
     stmt = select(Register)
     if user_id is not None:
         stmt = stmt.where(Register.user_id == user_id)
     return db.exec(stmt).all()
 
 
-def register_student(db: Session, register_in: RegisterCreate, current_user: User) -> Register:
+async def register_student(db: Session, register_in: RegisterCreate, current_user: User) -> Register:
     register = Register(user_id=current_user.id, course_id=register_in.course_id)
     course_id = register.course_id
     course = course_crud.get_course(db, course_id)
@@ -36,7 +36,7 @@ def register_student(db: Session, register_in: RegisterCreate, current_user: Use
     return register
 
 
-def delete_register(db: Session, course_id: int, current_user: User):
+async def delete_register(db: Session, course_id: int, current_user: User):
     stmt = select(Register).where(Register.course_id == course_id,
                                   Register.user_id == current_user.id)
     register = db.exec(stmt).first()
@@ -48,15 +48,15 @@ def delete_register(db: Session, course_id: int, current_user: User):
     return deleted_record
 
 
-def get_register(db: OrmSession, course_id: int) -> list[Register] | None:
+async def get_register(db: OrmSession, course_id: int) -> list[Register] | None:
     return db.query(Register).where(Register.course_id == course_id).all()
 
 
-def get_student_register(db: OrmSession, current_user: User) -> list[Register] | None:
+async def get_student_register(db: OrmSession, current_user: User) -> list[Register] | None:
     return db.query(Register).where(Register.user_id == current_user.id).all()
 
 
-def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
+async def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
     stmt = (
         select(Register)
         .where(Register.user_id == user_id,
@@ -65,7 +65,7 @@ def check_user_registered(db: Session, user_id: int, course_id: int) -> bool:
     return db.exec(stmt).first() is not None
 
 
-def delete_registrations_by_course_id(db: Session, course_id: int, current_user: User):
+async def delete_registrations_by_course_id(db: Session, course_id: int, current_user: User):
     if current_user.role not in {UserRole.ADMIN, UserRole.PROFESSOR}:
         return HTTPException(status_code=403, detail="Only Allowed to Admin User")
     stmt = select(Register).where(Register.course_id == course_id)
@@ -78,7 +78,7 @@ def delete_registrations_by_course_id(db: Session, course_id: int, current_user:
     return None
 
 
-def get_summarized_registrations(db: Session, user: User) -> SummarizedRegisterRead:
+async def get_summarized_registrations(db: Session, user: User) -> SummarizedRegisterRead:
     stmt = select(Register).where(Register.user_id == user.id)
     registers = db.exec(stmt).all()  # .all()로 리스트 형태로 받아야 함
 

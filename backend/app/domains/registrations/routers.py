@@ -15,14 +15,14 @@ router = APIRouter(
 
 # 수강 신청
 @router.post("", response_model=schemas.RegisterRead, status_code=status.HTTP_201_CREATED)
-def register(enroll_in: schemas.RegisterCreate, current_user: User = Depends(get_current_user),
-             db: Session = Depends(get_db)):
+async def register(enroll_in: schemas.RegisterCreate, current_user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
     return crud.register_student(db, enroll_in, current_user)
 
 
 # 자신이 수강 신청한 과목 조회
 @router.get("", response_model=list[schemas.RegisterRead])
-def read_student_register(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def read_student_register(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     reg = crud.get_student_register(db, current_user)
     return reg
 
@@ -36,7 +36,7 @@ async def retrieve_summarized_registration(db: Session = Depends(get_db),
 
 # 수강 신청 삭제
 @router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
-def unregister(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def unregister(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     success = crud.delete_register(db, course_id, current_user)
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
@@ -44,7 +44,7 @@ def unregister(course_id: int, db: Session = Depends(get_db), current_user: User
 
 # 해당 강의에 수강 신청 정보 조회
 @router.get("/{course_id}", response_model=list[schemas.RegisterRead])
-def read_register(course_id: int, db: Session = Depends(get_db)):
+async def read_register(course_id: int, db: Session = Depends(get_db)):
     reg = crud.get_register(db, course_id)
     if not reg:
         raise HTTPException(status_code=404, detail="Register not found")
