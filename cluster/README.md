@@ -569,6 +569,12 @@ grafana:
             org_role: Viewer
         security:
             allow_embedding: true
+    persistence:
+        enabled: true
+        accessModes:
+            - ReadWriteOnce
+        size: 1Gi
+        storageClassName: standard
 
 global:
     nodeSelector:
@@ -584,6 +590,8 @@ global:
 Grafana의 대시보드 그래프는 기본적으로 외부 웹 페이지에서 임베딩을 못하도록 막혀있는데, 이를 설정을 통해 뚫어주어야 한다. `env` 아래의 모든 설정들이 꼭 필요한 설정들이므로 모두 포함시키도록 한다. 특히 `GF_SECURITY_COOKIE_SAMESITE`의 경우에는 `lex`가 아닌 `none` 등으로 설정하면 HTTP + 임베딩 환경에서 그래프가 제대로 보이지 않으니 반드시 `lex`로 설정해주어야 한다.
 
 `grafana.ini` 부분은 외부에서 Grafana 대시보드 그래프에 접근 시 로그인 없이도 접근할 수 있도록 하기 위함이다. 저 부분을 설정하지 않으면 외부에서 접근 시 연결이 제대로 되더라도 관리자 아이디를 일일이 로그인 해주어야 한다.
+
+Grafana 대시보드에서 우리가 원하는 설정을 저장 후 서버가 재시작되더라도 유지되도록 하기 위해 `persistence` 설정을 통해 1GB 정도의 지속 유지되는 볼륨을 추가한다.
 
 이 설정을 `prom_config.yaml` 파일로 저장하고, Helm을 통해 적용하기 위해서는 아래와 같이 관련 서비스들을 업데이트해주어야 한다.
 

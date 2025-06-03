@@ -269,7 +269,7 @@ const SystemAdminPage = () => {
             <div className="monitoring-section-subsection">
               <h3>CPU Usage</h3>
               <iframe
-                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo"
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo"
                 width="640"
                 height="360"
                 frameBorder="0"
@@ -277,7 +277,7 @@ const SystemAdminPage = () => {
 
               <h3>Memory Usage</h3>
               <iframe
-                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=3&__feature.dashboardSceneSolo"
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=3&__feature.dashboardSceneSolo"
                 width="640"
                 height="360"
                 frameBorder="0"
@@ -285,7 +285,7 @@ const SystemAdminPage = () => {
 
               <h3>Transmit Bandwidth</h3>
               <iframe
-                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=4&__feature.dashboardSceneSolo"
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=6&__feature.dashboardSceneSolo"
                 width="640"
                 height="360"
                 frameBorder="0"
@@ -293,7 +293,7 @@ const SystemAdminPage = () => {
 
               <h3>Receive Bandwidth</h3>
               <iframe
-                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=test-hpa&refresh=10s&theme=light&panelId=5&__feature.dashboardSceneSolo"
+                src="http://nacho2407.duckdns.org:30090/d-solo/a164a7f0339f99e89cea5cb47e9be618/k3s-course-reg-workload?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=7&__feature.dashboardSceneSolo"
                 width="640"
                 height="360"
                 frameBorder="0"
