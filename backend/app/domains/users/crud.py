@@ -78,7 +78,7 @@ class UserCRUD:
         return UserResponse.model_validate(user)
 
     async def authenticate_user(self, username: str, password: str) -> Optional[User]:
-        user = self.get_user_by_username(username)
+        user = await self.get_user_by_username(username)
         if not user or not self.verify_password(password, user.hashed_password):
             return None
         return user
