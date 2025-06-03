@@ -585,6 +585,12 @@ Grafana의 대시보드 그래프는 기본적으로 외부 웹 페이지에서 
 
 `grafana.ini` 부분은 외부에서 Grafana 대시보드 그래프에 접근 시 로그인 없이도 접근할 수 있도록 하기 위함이다. 저 부분을 설정하지 않으면 외부에서 접근 시 연결이 제대로 되더라도 관리자 아이디를 일일이 로그인 해주어야 한다.
 
+이 설정을 `prom_config.yaml` 파일로 저장하고, Helm을 통해 적용하기 위해서는 아래와 같이 관련 서비스들을 업데이트해주어야 한다.
+
+```Bash
+helm upgrade prometheus prometheus-community/kube-prometheus-stack -n monitoring -f prom_config.yaml
+```
+
 ---
 
 ### 추추가 설정
@@ -604,4 +610,60 @@ kubectl patch svc prometheus-grafana -n monitoring -p '{"spec": {"ports": [{"por
 
 ### Grafana 대시보드 설정
 
-이제 준비가 되었으니 Grafana 대시보드에서 사용할 그래프를 설정하고 이를 서비스에 임베딩해보자. Grafana는 주제별로 미리 정의된 그래프 템플릿들을 모아놓은 대시보드들로 구성되는데, 
+이제 준비가 되었으니 Grafana 대시보드에서 사용할 그래프를 설정하고 이를 서비스에 임베딩해보자. Grafana는 주제별로 미리 정의된 그래프 템플릿들을 모아놓은 대시보드들로 구성되는데, 이미 템플릿으로 등록된 대시보드는 수정이 어렵기 때문에 해당 대시보드를 새로 임포트하여 수정하도록 한다.
+
+대시보드를 임포트하는 것이 가능한 이유는, Grafana의 대시보드는 JSON 파일로 추출이 가능하기 때문이다! 설정한 DNS에 포트 30090번을 입력하여 Grafana 관리 창을 열고, 모든 설정 값을 담은 JSON 파일을 새로 임포트하여 열어본 화면은 아래와 같다.
+
+![grafana.png](./assets/grafana.png)
+
+참고로 해당 대시보드를 수정할 권한을 받으려면 우선 로그인해야한다.
+
+이제 대시보드에 원하는 그래프를 하나 골라잡아서 오른쪽 위 설정 탭을 열어 공유 옵션에서 임베드 공유 옵션을 선택하면 아래와 같은 코드를 얻을 수 있다.
+
+```HTML
+<iframe src="http://<설정한 DNS 주소>:30090/d-solo/<대시보드 구분을 위한 ID>/<대시보드 이름>?orgId=1&timezone=browser&var-datasource=default&var-cluster=&var-namespace=default&var-type=$__all&var-workload=backend&refresh=10s&theme=light&panelId=1&__feature.dashboardSceneSolo" width="450" height="200" frameborder="0"></iframe>
+```
+
+임베드 코드를 받아올 때 시간을 잠그는 옵션을 꺼주어야 실시간으로 그래프를 받아올 수 있다.
+
+해당 코드를 임베드하여 로드 API 호출 시 반환할 페이지에 그래프를 추가해보자.
+
+```Python
+@app.post("/load", response_class = HTMLResponse)
+async def load(duration: int = Form(...)):
+    cpus = os.cpu_count() or 1
+
+    try:
+        subprocess.Popen(
+            ["stress", "--cpu", str(cpus), "--timeout", str(duration)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+
+        result = f"✅ Started stress with {cpus} CPUs for {duration} seconds"
+    except Exception as e:
+        result = f"❌ Failed to start stress: {e}"
+
+    html = f"""
+        <html>
+            <head>
+                <title>CPU Load</title>
+            </head>
+
+            <body style="font-family:sans-serif; text-align:center; padding-top:3em">
+                <p>{result}</p>
+
+                <p><a href="/">Back</a></p>
+
+                <h3 stype="text-align: center">📈 CPU Usage</h3>
+                <임베드 코드>
+            </body>
+        </html>
+        """
+
+    return HTMLResponse(content = html)
+```
+
+로드를 수행하면 다음과 같이 예쁜 그래프를 볼 수 있다.
+
+![test_grafana.png](./assets/test_grafana.png)
