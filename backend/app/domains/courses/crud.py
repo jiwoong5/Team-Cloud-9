@@ -12,11 +12,11 @@ from app.domains.users.models import User, UserRole
 from app.domains.users.schemas import UserRead
 
 
-def get_courses_with_pagination(db: Session, params: Params) -> list[Course]:
+async def get_courses_with_pagination(db: Session, params: Params) -> list[Course]:
     return paginate(db, select(Course), params=params)
 
 
-def create_course(db: Session, course_in: CourseCreate, current_user: User) -> Course:
+async def create_course(db: Session, course_in: CourseCreate, current_user: User) -> Course:
     if current_user.role not in {UserRole.PROFESSOR, UserRole.ADMIN}:
         raise HTTPException(status_code=403, detail="Only Allowed to Admin User")
     course = Course(**course_in.dict())
@@ -31,17 +31,17 @@ def create_course(db: Session, course_in: CourseCreate, current_user: User) -> C
     return course
 
 
-def get_courses_by_department(db: Session, department_id: int) -> list[Course]:
+async def get_courses_by_department(db: Session, department_id: int) -> list[Course]:
     stmt = select(Course).where(Course.department_id == department_id)
     return db.exec(stmt).all()
 
 
-def get_course(db: Session, course_id: int) -> Course | None:
+async def get_course(db: Session, course_id: int) -> Course | None:
     stmt = select(Course).where(Course.id == course_id)
     return db.exec(stmt).first()
 
 
-def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
+async def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
     if get_course(db, course_id) is None:
         raise HTTPException(status_code=404, detail=f"Not found Course with ID {course_id}")
     stmt = (
@@ -54,7 +54,7 @@ def get_students_by_course(db: Session, course_id: int) -> List[UserRead]:
     return student_list
 
 
-def delete_course(db: Session, course: Course, current_user: User):
+async def delete_course(db: Session, course: Course, current_user: User):
     if current_user.role not in (UserRole.PROFESSOR, UserRole.ADMIN):
         raise HTTPException(status_code=403, detail="Only Allowed for Admin or Professor")
 
@@ -64,7 +64,7 @@ def delete_course(db: Session, course: Course, current_user: User):
     db.commit()
 
 
-def get_courses_by_professor(db: Session, current_user: User) -> List[CourseRead]:
+async def get_courses_by_professor(db: Session, current_user: User) -> List[CourseRead]:
     if current_user.role == UserRole.STUDENT:
         raise HTTPException(status_code=400, detail="This page is only for professor!")
     user_id = current_user.id
