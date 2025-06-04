@@ -1,6 +1,6 @@
 # 🎲 부산대학교 정보컴퓨터공학부 2025학년도 1학기 클라우드컴퓨팅 텀 프로젝트 - 9조
 
-> **K3s 기반 다중 노드 Kubernetes 환경에서 안정적인 운영이 가능한 수강신청 서비스 개발**
+**K3s 기반 다중 노드 Kubernetes 환경에서 안정적인 운영이 가능한 수강신청 서비스 개발**
 
 ![example_1.png](./cluster/assets/assets-root/example_1.png)
 
