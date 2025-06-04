@@ -1,11 +1,18 @@
 # ⚙ K3s 클러스터 구성 파트
 
-부산대학교 정보컴퓨터공학부 2025학년도 1학기 클라우드컴퓨팅(김태운 교수님) 텀 프로젝트
-
-**K3s 기반 다중 노드 Kubernetes 환경에서 안정적인 운영이 가능한 수강신청 서비스 개발**
+K3s 기반 다중 노드 Kubernetes 환경에서 안정적인 운영이 가능한 수강신청 서비스 개발
 
 
-## K3s 노드 설정 / 마스터 - 워커 연결
+## 개요
+
+![k3s_architecture.svg](./assets/k3s_architecture.svg)
+
+홈 라우터를 이용하여 노드들을 엮은 후 구성한 K3s 클러스터입니다. 라운드 로빈 방식으로 트래픽을 분산하는 기본적인 **부하 분산 기능**과, CPU 부하량을 기준으로 확장하는 **자동 확장 기능**, Grafana를 통해 실시간으로 클러스터 상황을 확인할 수 있는 **시각화 기능**이 포함되어 있습니다.
+
+
+## 개발 내용
+
+### K3s 노드 설정 / 마스터 - 워커 연결
 
 우선 K3s 환경을 구성할 시스템 환경을 설정한다. 다중 노드 K3s 시스템에서 각 노드들은 클러스터 내에서 **다른 노드들이 자신을 식별할 IP 주소를 설치 시 미리 설정**하고, 해당 IP 주소의 **정해진 포트로 통신**한다.
 
@@ -24,7 +31,7 @@ K3s에서 노드 간 통신을 위해 사용하는 포트는 다음과 같다.
 이 포트들은 단순히 포워딩만 해주면 끝나는 것이 아니라, 방화벽 인바운드 규칙 등 여러 설정을 통해 통신이 허가되어야 한다.
 
 
-### 운영체제
+#### 운영체제
 
 컨테이너 오케스트레이션을 위해 존재하는 K3s는 기본적으로 컨테이너 가상화가 가능한 환경에서 작동해야 하므로 각 노드는 Linux 환경에서 동작해야만 하는데, 현재 마스터 노드로 사용할 데스크탑 컴퓨터는 Windows 10, 워커 노드로 사용할 랩탑 컴퓨터는 Windows 11 상에서 동작 중이다. 이전에 Docker의 경우에는 Windows에서 WSL을 사용하여 원활하게 사용이 가능했기에 이번에도 WSL을 이용하여 K3s 구성을 시도해보았으나, 노드 연결까지는 가능하더라도 flannel VXLAN이 정상적으로 작동하지 않았다. Windows - WSL 간 `netsh`(포트 포워딩) 설정을 제대로 하지 않았거나, Windows 방화벽 설정에 문제가 있었던 것 같다.
 
@@ -32,9 +39,8 @@ K3s에서 노드 간 통신을 위해 사용하는 포트는 다음과 같다.
 
 ![어댑터에 브리지](./assets/bridged_adapter.png)
 
----
 
-### 포트 포워딩
+#### 포트 포워딩
 
 기존에 WSL로 구현할 때는 홈 라우터 포트 포워딩, Windows 방화벽 인바운드 규칙 설정, Windwos - WSL 네트워크 중계를 위한 `netsh` 설정, WSL 내 방화벽 설정 등등 포트 관련 수많은 설정이 필요했으나, 그냥 가상 머신 상에 방화벽 다 끄고 K3s 노드를 설정하는 경우 단순히 홈 라우터 포트 포워딩만 구성해주면 된다.
 
@@ -55,9 +61,8 @@ sudo ufw status
 
 ![ufw](./assets/ufw.png)
 
----
 
-### 마스터 노드 설치
+#### 마스터 노드 설치
 
 이제 마스터 노드로 사용할 가상 머신에서 K3s를 설치한다. K3s는 인터넷에서 단일 바이너리 파일을 받아 일부 환경 변수와 함께 설치해주면 된다.
 
@@ -90,9 +95,8 @@ DNS 사용을 위해 K3s 마스터 설치 시 `tls-san`을 설정해 두었다�
 server: https://<DNS 주소>:6443
 ```
 
----
 
-### 워커 노드 설치 & 마스터 - 워커 연결
+#### 워커 노드 설치 & 마스터 - 워커 연결
 
 **K3s에서 마스터 - 워커 노드 연결은 워커 노드 설치 시에 바로 수행된다.** 때문에 우선 마스터 노드의 IP 주소와 특정 토큰 값을 추가로 넘겨주어 지금 이 가상 머신에 설치하는 노드가 워커 노드라는 것을 K3s 설치 시에 확인한다.
 
@@ -119,13 +123,14 @@ kubectl get nodes
 
 ![node_connection](./assets/node_connection.png)
 
+---
 
-## 부하 분산
+### 부하 분산
 
 이제 본격적으로 부하 분산 기능을 사용해본다.
 
 
-### 테스트 서버 개발
+#### 테스트 서버 개발
 
 우선 FastAPI를 이용해 간단한 테스트 서버를 개발한다. 서버는 현재 해당 서버가 실행되고 있는 노드, 파드 이름과 방문자 수를 출력한다.
 
@@ -168,9 +173,8 @@ async def hello():
 
 ```
 
----
 
-### 서버 컨테이너화
+#### 서버 컨테이너화
 
 서버를 컨테이너화하기 위한 컨테이너 이미지를 Docker를 이용해 생성한다. Dockerfile은 아래와 같이 작성한다.
 
@@ -194,9 +198,8 @@ docker login
 docker push <Docker Hub 아이디>/test
 ```
 
----
 
-### 배포 파일 작성
+#### 배포 파일 작성
 
 K3s로 Docker Hub에 등록한 서버 이미지를 배포하기 위해 설정 파일을 작성한다. YAML 파일을 이용하여 Kubernetes 환경에서 배포에 필요한 설정들을 작성하는데, 현재 상황에서는 크게 **파드의 생성, 복제, 업데이트를 관리할 `Deployment`**와 **파드에 접근하기 위한 네트워크 엔드포인트를 생성하는 `Service`**만 작성한다. 쉽게 비유하자면 `Deployment`는 가게를 여는 주인이고, `Service`는 고객들이 가게를 찾을 수 있도록 안내하는 간판이라고 보면 된다.
 
@@ -259,9 +262,8 @@ spec:
 
 현재는 각 서버가 80번 포트로 오는 요청을 처리하고 있으므로 `targetPort`를 80으로 설정한다. 외부에서 접근하기 위한 `nodePort`는 홈 라우터 포트 포워딩에서 80:30080을 설정하였기 때문에 30080으로 설정한다. LAN 외부 환경에서 접근할 때는 단순히 80번 포트로 접속하면 된다.
 
----
 
-### K3s 배포
+#### K3s 배포
 
 마침내 부하 분산을 테스트할 준비가 되었다. 작성한 YAML 파일을 이용해 K3s에 서비스를 배포하여 부하 분산이 정상적으로 작동하는지 테스트한다. K3s 배포는 아래 명령어를 통해 간단하게 배포할 수 있다.
 
@@ -285,13 +287,14 @@ kubectl get pods -o wide
 
 웹 브라우저가 새로고침될 때마다 라운드로빈 방식으로 각 Pod의 응답을 받을 수 있다.
 
+---
 
-## 자동 확장(HPA)
+### 자동 확장(HPA)
 
 부하 분산에 성공하였으니 이제 자동 확장을 구현해보자. Kubernetes에서 자동 확장은 보통 수평적으로 파드의 개수를 조절하는 HPA(Horizontal Pod Autoscaler)를 통해 구현한다. 우리의 목표는 각 파드의 CPU 부하가 높아지면 HPA를 통해 파드의 개수를 조절하는 것을 구현하는 것이다. 일반적으로 네트워크 상에서 작동하는 서비스는 CPU의 작업 처리 부하 뿐 아니라 네트워크 트래픽 부하도 확인하여 구현하지만, 우리의 경우에는 많은 네트워크 부하를 감당하기 어려운 홈 라우터 LAN 환경이라 단순히 CPU 부하를 통해 자동 확장을 구현하도록 한다.
 
 
-### CPU 로드 API 추가
+#### CPU 로드 API 추가
 
 원활한 테스트를 위해 테스트 서버에 `/load`라는 API 요청을 추가한다. 서버가 해당 요청을 받으면 Linux 상에서 사용할 수 있는 stress 도구를 활용하여 CPU의 부하를 크게 늘린다. 프론트엔드에 몇 초간 부하를 줄 지 입력하고 Commit 버튼을 누르면 해당 시간만큼 요청을 받은 Pod의 부하가 늘어나도록 한다.
 
@@ -398,7 +401,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
 ---
 
-### metrics-server 확인
+#### metrics-server 확인
 
 자동 확장 기능을 구현하기 위해서는 각 노드, 파드 별 컴퓨팅 리소스 사용량을 지속적으로 확인할 수 있어야 한다. Kubernetes에서는 이를 metrics-server가 확인하는데, K3s는 기본적으로 kube-system 네임스페이스 아래에 metrics-server를 구동하고 있지만, 혹시 모르니 kubectl로 확인해본다.
 
@@ -414,9 +417,8 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 
 이후 `kubectl top [pods] [nodes]`로 파드, 노드별 컴퓨팅 리소스 사용량을 확인할 수 있다.
 
----
 
-### `Deployment` 리소스 제한
+#### `Deployment` 리소스 제한
 
 Kubernetes의 HPA는 우리가 처음 생각한 방식과는 조금 다르게 동작했다. 처음 의도한 자동 확장은 클러스터 내의 일부 노드에서 CPU 전체 사용량이 크게 높아지면 다른 노드로 파드를 늘리는 방식을 생각했었다. 하지만 HPA를 정석적으로 활용하는 방법은, 클러스터 내의 노드 개수와 상관 없이 파드가 사용할 수 있는 리소스를 제한해두고 기준치 이상의 리소스가 사용되는 경우 클러스터 내에서 작동하는 파드의 개수를 늘려 여러 노드에 분산시키는 것이다.
 
@@ -432,9 +434,8 @@ resources:
 
 여기서 `m`은 $\frac{1}{1000}$을 의미한다. 위의 내용은 각 Pod가 클러스터에 요청하는 리소스 중, CPU를 기본(최소)적으로 1개(논리 프로세서 기준) 요청하면서, 추가로 리소스가 필요한 경우 최대 2개까지 요청이 가능하도록 설정한 것이다. 부하 분산을 테스트할 때는 이 부분을 따로 명시하지 않았었는데, `requests`를 명시하지 않으면 기본값은 0이며, `limits`를 명시하지 않으면 노드가 사용할 수 있는 최대 CPU까지 사용할 수 있다. 설정이 잘 되었는지는 파드가 실행된 후 `kubectl describe pod <파드 이름>`을 통해 확인할 수 있다.
 
----
 
-### HPA 설정
+#### HPA 설정
 
 이제 본격적으로 HPA를 설정해보자. 배포 설정 파일에 `HorizontalAutoScaler`를 추가하기 위해 아래와 같이 작성해준다.
 
@@ -477,7 +478,7 @@ spec:
 파드 개수 조정이 너무 자주 일어나지 않도록 하기 위해 Scale Down 조건에는 2분의 안정화 시간을 준다. 파드의 평균 CPU 사용량이 80%를 넘지 않는 상태가 1분 이상 지속되더라도 개수가 조정된지 120초가 지나지 않았다면 Scale Down이 일어나지 않도록 제한한다.
 
 
-### K3s 재배포
+#### K3s 재배포
 
 이제 수정한 배포 파일을 이용하여 서비스를 K3s 클러스터에 재배포한다. 배포 파일을 다시 적용하는 방법은 다양하지만, 가장 깔끔하게 재배포하는 방법은 그냥 해당 배포를 지우고 다시 배포하는 것이다.
 
@@ -495,12 +496,13 @@ kubectl apply -f <배포 파일>
 
 ![test_hpa.png](./assets/test_hpa.png)
 
+---
 
-## Prometheus + Grafana를 통한 시각화
+### Prometheus + Grafana를 통한 시각화
 
 부하 분산이나 자동 확장이 잘 일어나고 있다는 것을 서비스의 관리자 페이지 등에서 쉽게 확인할 수 있도록 시각화 자료를 추가해보자. K3s의 각종 메트릭을 쿼리하고 이를 그래프로 예쁘고 표시하기 위해서는 Prometheus와 Grafana를 이용할 수 있다.
 
-### Helm 설치 및 설정
+#### Helm 설치 및 설정
 
 Prometheus 및 Grafana는 Kubernetes나 K3s에 포함되지 않은 외부 도구로, K3s에서 사용하려면 외부에서 받아 설치하여야 한다. 보통 Kubernetes 환경에서는 외부 도구를 추가 설치할 때 Kubernetes 애플리케이션을 관리하는 Helm이라는 패키지 매니저를 사용한다. 다음과 같이 curl을 이용해 Helm을 다운로드하고 설치한다.
 
@@ -515,9 +517,8 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 ```
 
----
 
-### Prometheus + Grafana 설치
+#### 설정 파일 작성 및 Prometheus + Grafana 설치
 
 Helm을 사용하면 Prometheus와 Grafana와 관련된 모든 파드들을 Helm이 생성 / 배포 / 오류나 업데이트 시 재배포까지 처리해주기 때문에 매우 편리한데, 다만 생성되는 파드들이 많아 모니터링과 관련된 파드들은 다른 네임스페이스로 분리하여 관리하는 것이 편하다. 사실 지금까지는 파드의 네임스페이스를 딱히 신경쓰지 않았는데, 따로 명시하지 않으면 기본 네임스페이스인 `default`에 포함된다. 우선 아래와 같이 모니터링용 파드들을 분류할 `monitoring` 네임 스페이스를 생성한다.
 
@@ -525,19 +526,7 @@ Helm을 사용하면 Prometheus와 Grafana와 관련된 모든 파드들을 Helm
 kubectl create namespace monitoring
 ```
 
-이제 Helm을 통해 Prometheus와 Grafana 등을 설치해보자. `prometheus-community`에서는 `kube-prometheus-stack`이라는 Helm Charts(애플리케이션 패키지 묶음)를 통해 Alertmanager나 Grafana같이 Kubernetes에서 Prometheus와 사용하기 좋은 툴들을 묶어 배포한다.
-
-```Bash
-helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
-```
-
-설치가 끝난 후에는 `kubectl get pods -o wide -n monitoring`을 통해 배포중인 Prometheus 관련 파드들을 확인할 수 있다.
-
----
-
-### 추가 설정
-
-'이제 끝!'인 줄 알았지만 아직 중요하게 설정해주어야 할 것이 남았다. 우선 아래의 Helm 설정 파일을 보자.
+Helm을 통해 Prometheus와 Grafana를 설치하기 전에 설정 파일을 작성하여 설치하면서 함께 넘겨주자. 우선 아래의 설정 파일을 작성한다.
 
 ```YAML
 prometheus:
@@ -593,17 +582,20 @@ Grafana의 대시보드 그래프는 기본적으로 외부 웹 페이지에서 
 
 Grafana 대시보드에서 우리가 원하는 설정을 저장 후 서버가 재시작되더라도 유지되도록 하기 위해 `persistence` 설정을 통해 1GB 정도의 지속 유지되는 볼륨을 추가한다.
 
-이 설정을 `prom_config.yaml` 파일로 저장하고, Helm을 통해 적용하기 위해서는 아래와 같이 관련 서비스들을 업데이트해주어야 한다.
+Helm을 통해 Prometheus와 Grafana 등을 설치해보자. `prometheus-community`에서는 `kube-prometheus-stack`이라는 Helm Charts(애플리케이션 패키지 묶음)를 통해 Alertmanager나 Grafana같이 Kubernetes에서 Prometheus와 사용하기 좋은 툴들을 묶어 배포한다.
+
+설치 시 아래와 같이 설정 파일을 함께 넘겨주며 설치한다.
 
 ```Bash
-helm upgrade prometheus prometheus-community/kube-prometheus-stack -n monitoring -f prom_config.yaml
+helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring -f <설정 파일>
 ```
 
----
+설치가 끝난 후에는 `kubectl get pods -o wide -n monitoring`을 통해 배포중인 Prometheus 관련 파드들을 확인할 수 있다.
 
-### 추추가 설정
 
-아직도 설정할 것이 남았다! Prometheus와 Grafana는 기본적으로 클러스터 내에서 관리자들이 사용할 수 있도록 만들어진 것이기 때문에 외부에서 해당 파드들에 접속할 수 있도록 하기 위해서는 서비스 타입을 NodePort 등으로 바꾸어줄 필요가 있다. Grafana와 Prometheus에 각각 30090번, 30100번을 할당하여 NodePort로 서비스 타입을 변경하는 명령어는 아래와 같다.
+#### 추가 설정
+
+아직 설정할 것이 남았다! Prometheus와 Grafana는 기본적으로 클러스터 내에서 관리자들이 사용할 수 있도록 만들어진 것이기 때문에 외부에서 해당 파드들에 접속할 수 있도록 하기 위해서는 서비스 타입을 NodePort 등으로 바꾸어줄 필요가 있다. Grafana와 Prometheus에 각각 30090번, 30100번을 할당하여 NodePort로 서비스 타입을 변경하는 명령어는 아래와 같다.
 
 ```Bash
 kubectl patch svc prometheus-kube-prometheus-prometheus -n monitoring -p '{"spec": {"type": "NodePort", "ports": [{"port": 9090, "nodePort": 30100, "protocol": "TCP", "targetPort": 9090}]}}'
@@ -614,9 +606,8 @@ kubectl patch svc prometheus-grafana -n monitoring -p '{"spec": {"ports": [{"por
 
 ![port_forwarding_2.png](./assets/port_forwarding_2.png)
 
----
 
-### Grafana 대시보드 설정
+#### Grafana 대시보드 설정
 
 이제 준비가 되었으니 Grafana 대시보드에서 사용할 그래프를 설정하고 이를 서비스에 임베딩해보자. Grafana는 주제별로 미리 정의된 그래프 템플릿들을 모아놓은 대시보드들로 구성되는데, 이미 템플릿으로 등록된 대시보드는 수정이 어렵기 때문에 해당 대시보드를 새로 임포트하여 수정하도록 한다.
 
