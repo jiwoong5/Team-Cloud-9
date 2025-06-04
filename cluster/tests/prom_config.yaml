@@ -32,7 +32,7 @@ grafana:
         accessModes:
             - ReadWriteOnce
         size: 1Gi
-        storageClassName: standard
+        storageClassName: local-path
 
 global:
     nodeSelector:
